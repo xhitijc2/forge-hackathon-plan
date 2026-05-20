@@ -55,6 +55,7 @@
     <a href="day2.html#d2-t5">H13 &middot; Test suite + integration</a>
     <a href="day2.html#d2-t6">H14 &middot; Benchmarks + docs</a>
     <a href="day2.html#d2-t7">H15 &middot; FSDP2 smoke test</a>
+    <a href="day2.html#d2-retro">Retro &amp; Next 4 Weeks (Sun eve)</a>
   </nav>
   </details>
 
@@ -107,7 +108,7 @@
     </div>
     <div class="stat-row">
       <span class="stat-label">Hours</span>
-      <span class="stat-value">~13 hrs</span>
+      <span class="stat-value">~15 hrs</span>
     </div>
     <div class="stat-row">
       <span class="stat-label">Kernels</span>
@@ -497,6 +498,70 @@
       <div class="cp-time">Checkpoint CP-H7 &middot; Sunday 4:30pm</div>
       <div class="cp-title">FSDP2 smoke test complete &mdash; Phase 3 de-risked</div>
       <div class="cp-desc">autograd.Function pattern verified (or failure mode documented) under FSDP2. Phase 3 playbook written. Team knows exactly what to build starting Monday.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== RETROSPECTIVE + NEXT 4 WEEKS PLANNING ===== -->
+<section id="d2-retro">
+  <h2>Sunday Evening &mdash; Retrospective &amp; Next 4 Weeks Planning</h2>
+  <p class="section-desc">
+    <strong>Reserved block: 2 hours, 19:00&ndash;21:00 (after dinner).</strong> The hackathon does not end at the demo. This block converts the day's work into a tracked plan for the next 4 weeks. Every engineer leaves with a clear owner-and-deliverable list. No retro = scattered followup work + lost momentum.
+  </p>
+
+  <div class="task-card structural" id="d2-retro-card">
+    <div class="task-header">
+      <span class="task-id">Retro</span>
+      <span class="task-title">Two-hour agenda &mdash; reserved on the schedule</span>
+      <div class="task-tags">
+        <span class="tag time">19:00 &ndash; 21:00</span>
+        <span class="tag">Everyone (8 people)</span>
+      </div>
+    </div>
+    <p class="task-desc">Tight agenda. Timekeeper enforces the clock so we don't drift. Notes captured in a shared doc as we go.</p>
+
+    <ol class="task-steps">
+      <li><strong>Round-robin status (30 min, ~3 min per person).</strong> Each engineer shares: what shipped (passed all 7 done-gates), what's marked "needs follow-up" and why, what surprised them. No discussion yet &mdash; just listen.</li>
+      <li><strong>What slipped and why (20 min).</strong> Honest postmortem on anything dropped from the scope ladder. Was it a missing prerequisite? A kernel bug that ate hours? An AI hallucination that wasn't caught? Capture the systemic learnings, not the blame.</li>
+      <li><strong>Smoke test verdict deep-dive (15 min).</strong> P8 walks through the H15 outcome (A&ndash;F from the smoke-test deep dive). What does it mean for Phase 3? Pattern change required? If yes, what exactly?</li>
+      <li><strong>Recalibrate the V1 plan (45 min).</strong> Pull up <code>FORGE_V1_TARGETS.md</code>. Walk through the four checkpoints and adjust based on hackathon outcomes:
+        <ul>
+          <li><strong>CP2 (June 14):</strong> Single-GPU LoRA + Full FT on Qwen3 + Gemma. What's already done after hackathon. What remains.</li>
+          <li><strong>CP3 (June 28):</strong> 4-GPU FSDP2 training. Plan revised by smoke-test verdict.</li>
+          <li><strong>CP4 / V1 (July 15):</strong> Benchmarks, stress tests, ship. Date confirmed or moved.</li>
+        </ul>
+      </li>
+      <li><strong>Followup capture (10 min).</strong> Open a GitHub issue for every "needs follow-up" kernel from Step 1. Assign owners. Tag with milestone (CP2/CP3/CP4).</li>
+    </ol>
+
+    <div class="exit-criteria">
+      <div class="ec-label">Done When (CP-H8 by 21:00)</div>
+      <ul>
+        <li>Every "needs follow-up" item has a tracked issue with an owner</li>
+        <li>The V1 plan is updated with hackathon-adjusted dates and scope</li>
+        <li>Every engineer knows what they're working on Monday morning</li>
+        <li>Smoke test outcome is documented and Phase 3 plan reflects it</li>
+        <li>Shared notes doc captures the systemic learnings (for the next sprint)</li>
+      </ul>
+    </div>
+
+    <div class="approach-box">
+      <div class="approach-label">Anti-goals</div>
+      <ul>
+        <li><strong>Not a celebration.</strong> Celebration happens during dinner (18:00). This block is work.</li>
+        <li><strong>Not a deep technical debate.</strong> If a debate threatens to consume 30+ min, table it &mdash; create an issue, assign owners, move on.</li>
+        <li><strong>Not optional.</strong> All 8 engineers attend. The plan they leave with directly affects whether V1 ships July 15.</li>
+        <li><strong>Don't run past 21:00.</strong> People are tired. Decisions degrade. End on time.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="checkpoint">
+    <span class="cp-icon">&#127937;</span>
+    <div class="cp-content">
+      <div class="cp-time">Checkpoint CP-H8 &middot; Sunday 9:00pm &middot; Hackathon ends</div>
+      <div class="cp-title">Next 4 weeks locked &mdash; every engineer leaves with an owner-and-deliverable list</div>
+      <div class="cp-desc">V1 plan recalibrated. All followup items tracked as issues. Smoke test verdict integrated into Phase 3 plan. Monday morning is execution, not planning.</div>
     </div>
   </div>
 </section>
