@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forge Hackathon &mdash; FSDP2 Smoke Test (H15)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="layout">
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar">
+  <a class="sidebar-brand-link" href="index.html">
+    <div class="sidebar-brand"><span class="fire">Forge</span> Hackathon</div>
+    <div class="sidebar-date">May 23 &ndash; 24, 2026</div>
+  </a>
+  <div class="sidebar-note">Sections marked with <span class="important-marker">*</span> are important.</div>
+
+
+  <details class="sidebar-group" data-page="index.html">
+  <summary class="sidebar-section"><a href="index.html" class="sidebar-group-title important" onclick="event.stopPropagation()">Overview</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="index.html#target">Target &amp; Demo</a>
+    <a href="index.html#schedule">Schedule</a>
+    <a href="index.html#assignments">Team Assignments</a>
+    <a href="index.html#prep">Pre-Hackathon Checklist</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="day1.html">
+  <summary class="sidebar-section"><a href="day1.html" class="sidebar-group-title important" onclick="event.stopPropagation()">Day 1 &mdash; 8 Parallel Tracks</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="day1.html#d1-t1">H1 &middot; SwiGLU kernel</a>
+    <a href="day1.html#d1-t2">H2 &middot; RoPE kernel</a>
+    <a href="day1.html#d1-t3">H3 &middot; Cross-Entropy kernel</a>
+    <a href="day1.html#d1-t4">H4 &middot; LoRA MLP fused</a>
+    <a href="day1.html#d1-t5">H5 &middot; LoRA QKV fused</a>
+    <a href="day1.html#d1-t6">H6 &middot; GeGLU kernel</a>
+    <a href="day1.html#d1-t7">H7 &middot; Package scaffold + porting</a>
+    <a href="day1.html#d1-t8">H8 &middot; Patching infra + FSDP2</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="day2.html">
+  <summary class="sidebar-section"><a href="day2.html" class="sidebar-group-title important" onclick="event.stopPropagation()">Day 2 &mdash; Integration Sprint</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="day2.html#d2-t1">H9 &middot; Port Day 1 kernels</a>
+    <a href="day2.html#d2-t2">H10 &middot; forge.patch (Qwen3)</a>
+    <a href="day2.html#d2-t3">H11 &middot; forge.patch (Gemma)</a>
+    <a href="day2.html#d2-t4">H12 &middot; Training pipeline</a>
+    <a href="day2.html#d2-t5">H13 &middot; Test suite + integration</a>
+    <a href="day2.html#d2-t6">H14 &middot; Benchmarks + docs</a>
+    <a href="day2.html#d2-t7">H15 &middot; FSDP2 smoke test</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="smoketest.html">
+  <summary class="sidebar-section"><a href="smoketest.html" class="sidebar-group-title" onclick="event.stopPropagation()">Smoke Test</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="smoketest.html#smoketest">FSDP2 Smoke Test (H15)</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="practices.html">
+  <summary class="sidebar-section"><a href="practices.html" class="sidebar-group-title important" onclick="event.stopPropagation()">Engineering Practices</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="practices.html#good-practices">Good Practices (Build Workflow)</a>
+    <a href="practices.html#ai-tips">Tips for Using AI</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="details.html">
+  <summary class="sidebar-section"><a href="details.html" class="sidebar-group-title" onclick="event.stopPropagation()">Design Details</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="details.html#scope">Scope Priority Ladder</a>
+    <a href="details.html#repo">Repo + Package Layout</a>
+    <a href="details.html#patching-design">Patching Architecture</a>
+    <a href="details.html#qwen3-map">Qwen3 Patch Mapping</a>
+    <a href="details.html#gemma-map">Gemma Patch Mapping</a>
+    <a href="details.html#training">Training Loop (Custom)</a>
+    <a href="details.html#integration">Integration Tests</a>
+    <a href="details.html#decisions">Decision Log (12)</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="planning.html">
+  <summary class="sidebar-section"><a href="planning.html" class="sidebar-group-title" onclick="event.stopPropagation()">Planning</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="planning.html#deps">Dependencies</a>
+    <a href="planning.html#risks">Risks &amp; Contingency</a>
+    <a href="planning.html#stretch">Stretch Goals</a>
+  </nav>
+  </details>
+
+  <div class="sidebar-stats">
+    <div class="stat-row">
+      <span class="stat-label">Tasks</span>
+      <span class="stat-value">15 core + 2 stretch</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">People</span>
+      <span class="stat-value">8</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Hours</span>
+      <span class="stat-value">~13 hrs</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Kernels</span>
+      <span class="stat-value">9 (Qwen3 + Gemma)</span>
+    </div>
+  </div>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<main>
+
+<a class="back-link" href="index.html"><span class="arrow">&larr;</span> Back to overview</a>
+
+<div class="page-header">
+  <h1>FSDP2 Smoke Test &mdash; H15 Deep Dive</h1>
+  <p>P8's working doc for Day 2 afternoon. The minimum experiment that retires the single biggest architectural risk in V1: does the <code>autograd.Function</code> pattern survive FSDP2 sharding?</p>
+</div>
+
+<!-- ===== FSDP2 SMOKE TEST ===== -->
+<section id="smoketest">
+  <h2>FSDP2 Smoke Test &mdash; H15 Deep Dive</h2>
+  <p class="section-desc">
+    <strong>Owner:</strong> P8 &nbsp;&middot;&nbsp; <strong>Window:</strong> Day 2, 13:00&ndash;16:00 (3 hrs incl. cloud setup) &nbsp;&middot;&nbsp; <strong>Hardware:</strong> 2&times;A100 or 2&times;H100, on-demand. <strong>Blocker for:</strong> the entire V1 multi-GPU story. If this fails, Phase 3 needs a pattern redesign.
+  </p>
+
+  <!-- 1. PURPOSE -->
+  <div class="day-header">
+    <span class="day-badge day1">1</span>
+    <h3>Purpose</h3>
+  </div>
+  <div class="approach-box">
+    <div class="approach-label">The one question</div>
+    <ul>
+      <li>Does our <code>torch.autograd.Function</code> pattern &mdash; specifically <code>ctx.save_for_backward(weight, ...)</code> &mdash; work correctly when FSDP2 has sharded the weight across GPUs?</li>
+      <li><strong>Yes &rarr;</strong> every kernel using the same pattern is FSDP2-compatible. Phase 3 is unblocked.</li>
+      <li><strong>No &rarr;</strong> we learn exactly which part breaks, and fix it once for all kernels before scaling out.</li>
+      <li><em>Not a benchmark. Not a convergence test. Not a full training run. The minimum experiment that retires the single biggest architectural risk in V1.</em></li>
+    </ul>
+  </div>
+
+  <!-- 2. PRECONDITIONS -->
+  <div class="day-header">
+    <span class="day-badge day1">2</span>
+    <h3>Preconditions &mdash; verified at 12:45 before booking the cloud instance</h3>
+  </div>
+
+  <div class="task-grid">
+    <div class="task-card structural">
+      <div class="task-header">
+        <span class="task-id">2.1</span>
+        <span class="task-title">Code artifacts</span>
+      </div>
+      <div class="exit-criteria">
+        <div class="ec-label">Must exist</div>
+        <ul>
+          <li><code>forge/kernels/rmsnorm.py</code> exports <code>ForgeRMSNorm</code> (the <code>nn.Module</code>)</li>
+          <li><code>forge/kernels/rmsnorm.py</code> exports <code>ForgeRMSNormFunction</code> (the <code>autograd.Function</code>)</li>
+          <li><code>forge.patch(model)</code> and <code>forge.unpatch(model)</code> are callable from <code>forge/patching/patch.py</code></li>
+          <li>Single-GPU <code>test_rmsnorm.py</code> passes (gradcheck + correctness vs <code>nn.RMSNorm</code>)</li>
+          <li>Package installs cleanly: <code>pip install -e .</code> in a fresh virtualenv</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="task-card structural">
+      <div class="task-header">
+        <span class="task-id">2.2</span>
+        <span class="task-title">Test infrastructure</span>
+      </div>
+      <div class="exit-criteria">
+        <div class="ec-label">Must exist</div>
+        <ul>
+          <li><code>tests/test_fsdp2_smoke.py</code> skeleton committed (P8 writes Day 1 evening or Day 2 morning, BEFORE booking cloud)</li>
+          <li>Skeleton runs locally on 1 GPU with <code>--nproc-per-node=1</code> (sanity check &mdash; no FSDP2 wrap in single-rank case)</li>
+          <li><code>requirements.txt</code> pins <code>torch&gt;=2.4</code> (FSDP2 stable in 2.4+)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="task-card infra">
+      <div class="task-header">
+        <span class="task-id">2.3</span>
+        <span class="task-title">Cloud readiness</span>
+      </div>
+      <div class="exit-criteria">
+        <div class="ec-label">Must exist</div>
+        <ul>
+          <li>Cloud account credits verified (&gt;$50 buffer)</li>
+          <li>Instance image: CUDA 12.x, PyTorch 2.4+, NCCL</li>
+          <li>SSH key tested</li>
+          <li>All test scripts pre-staged in a git branch &mdash; P8 should <code>git clone &amp;&amp; pip install -e . &amp;&amp; torchrun ...</code> and nothing else</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="task-card stretch">
+      <div class="task-header">
+        <span class="task-id">2.4</span>
+        <span class="task-title">Explicitly NOT required</span>
+      </div>
+      <div class="exit-criteria">
+        <div class="ec-label">Out of scope</div>
+        <ul>
+          <li>LoRA integration (deferred to post-hackathon)</li>
+          <li>Full transformer model (we test ONE kernel in isolation)</li>
+          <li>Multiple kernels (only RMSNorm &mdash; the simplest, already single-GPU validated)</li>
+          <li>Performance numbers (this is correctness only)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. THE TEST MODEL -->
+  <div class="day-header">
+    <span class="day-badge day1">3</span>
+    <h3>The Test Model</h3>
+  </div>
+
+  <div class="target-box">
+    <h3>Minimal smoke-test model</h3>
+    <pre><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn
+<span class="keyword">from</span> forge.kernels.rmsnorm <span class="keyword">import</span> ForgeRMSNorm
+
+<span class="keyword">class</span> <span class="func">SmokeModel</span>(nn.Module):
+    <span class="keyword">def</span> <span class="func">__init__</span>(self, hidden=4096):
+        super().<span class="func">__init__</span>()
+        self.norm = <span class="highlight">ForgeRMSNorm</span>(hidden)        <span class="comment"># &larr; the kernel under test</span>
+        self.proj = nn.<span class="func">Linear</span>(hidden, hidden)   <span class="comment"># &larr; standard layer for gradient flow</span>
+
+    <span class="keyword">def</span> <span class="func">forward</span>(self, x):
+        <span class="keyword">return</span> self.<span class="func">proj</span>(self.<span class="func">norm</span>(x))</pre>
+  </div>
+
+  <div class="approach-box">
+    <div class="approach-label">Why this shape</div>
+    <ul>
+      <li><code>ForgeRMSNorm</code> has a learnable <code>weight</code> of shape <code>[hidden]</code> &mdash; this is the parameter FSDP2 will shard.</li>
+      <li><code>nn.Linear</code> provides a known-good reference path for gradients (we trust PyTorch's <code>nn.Linear</code> under FSDP2).</li>
+      <li>Total params small enough to fit on one GPU for the reference run, large enough that sharding is non-trivial.</li>
+      <li><strong>Why NOT a full transformer:</strong> attention + MLP + RoPE introduces 5+ failure modes. With the minimal model, any failure is definitively localized to RMSNorm's <code>autograd.Function</code> pattern.</li>
+    </ul>
+  </div>
+
+  <!-- 4. THE PROCEDURE -->
+  <div class="day-header">
+    <span class="day-badge day2">4</span>
+    <h3>The Procedure</h3>
+  </div>
+
+  <div class="target-box">
+    <h3>Step 1 &mdash; Reference run (single GPU, rank 0, no FSDP2)</h3>
+    <pre>torch.<span class="func">manual_seed</span>(42)
+torch.cuda.<span class="func">manual_seed</span>(42)
+model = <span class="func">SmokeModel</span>(hidden=4096).<span class="func">cuda</span>()
+x = torch.<span class="func">randn</span>(4, 128, 4096, device=<span class="string">'cuda'</span>, requires_grad=<span class="keyword">True</span>)
+y = <span class="func">model</span>(x)
+loss = y.<span class="func">sum</span>()
+loss.<span class="func">backward</span>()
+
+<span class="comment"># Save references</span>
+ref_output       = y.<span class="func">detach</span>().<span class="func">clone</span>()
+ref_input_grad   = x.grad.<span class="func">detach</span>().<span class="func">clone</span>()
+ref_weight_grad  = model.norm.weight.grad.<span class="func">detach</span>().<span class="func">clone</span>()
+torch.<span class="func">save</span>({
+    <span class="string">'output'</span>: ref_output,
+    <span class="string">'input_grad'</span>: ref_input_grad,
+    <span class="string">'weight_grad'</span>: ref_weight_grad,
+}, <span class="string">'reference.pt'</span>)
+
+<span class="comment"># Save state dict so the FSDP2 run starts from identical weights</span>
+torch.<span class="func">save</span>(model.<span class="func">state_dict</span>(), <span class="string">'init_state.pt'</span>)</pre>
+  </div>
+
+  <div class="target-box">
+    <h3>Step 2 &mdash; FSDP2 run (2 GPUs, <code>torchrun --nproc-per-node=2</code>)</h3>
+    <pre><span class="keyword">import</span> torch.distributed <span class="keyword">as</span> dist
+<span class="keyword">from</span> torch.distributed.fsdp <span class="keyword">import</span> fully_shard  <span class="comment"># FSDP2 API</span>
+
+dist.<span class="func">init_process_group</span>(backend=<span class="string">'nccl'</span>)
+
+torch.<span class="func">manual_seed</span>(42)
+model = <span class="func">SmokeModel</span>(hidden=4096).<span class="func">cuda</span>()
+model.<span class="func">load_state_dict</span>(torch.<span class="func">load</span>(<span class="string">'init_state.pt'</span>))  <span class="comment"># identical weights</span>
+
+<span class="comment"># FSDP2 wrap</span>
+<span class="highlight">fully_shard</span>(model.norm)   <span class="comment"># shard the RMSNorm weight param</span>
+<span class="highlight">fully_shard</span>(model.proj)   <span class="comment"># shard the Linear</span>
+
+torch.<span class="func">manual_seed</span>(42)
+x = torch.<span class="func">randn</span>(4, 128, 4096, device=<span class="string">'cuda'</span>, requires_grad=<span class="keyword">True</span>)
+y = <span class="func">model</span>(x)
+loss = y.<span class="func">sum</span>()
+loss.<span class="func">backward</span>()
+
+fsdp_output      = y.<span class="func">detach</span>().<span class="func">clone</span>()
+fsdp_input_grad  = x.grad.<span class="func">detach</span>().<span class="func">clone</span>()
+<span class="comment"># weight grad is sharded &mdash; all-gather it for comparison</span>
+fsdp_weight_grad = <span class="func">_all_gather_param_grad</span>(model.norm.weight)</pre>
+  </div>
+
+  <div class="target-box">
+    <h3>Step 3 &mdash; Compare</h3>
+    <pre>ref = torch.<span class="func">load</span>(<span class="string">'reference.pt'</span>)
+<span class="keyword">assert</span> torch.<span class="func">allclose</span>(fsdp_output,      ref[<span class="string">'output'</span>],      rtol=1e-4, atol=1e-5)
+<span class="keyword">assert</span> torch.<span class="func">allclose</span>(fsdp_input_grad,  ref[<span class="string">'input_grad'</span>],  rtol=1e-4, atol=1e-5)
+<span class="keyword">assert</span> torch.<span class="func">allclose</span>(fsdp_weight_grad, ref[<span class="string">'weight_grad'</span>], rtol=1e-4, atol=1e-5)</pre>
+  </div>
+
+  <div class="target-box">
+    <h3>Step 4 &mdash; Memory check</h3>
+    <pre>torch.cuda.<span class="func">reset_peak_memory_stats</span>()
+<span class="comment"># ... run forward + backward ...</span>
+peak = torch.cuda.<span class="func">max_memory_allocated</span>() / 1e9
+<span class="func">print</span>(f<span class="string">"Rank {dist.get_rank()}: peak {peak:.2f} GB"</span>)</pre>
+  </div>
+  <p class="task-desc" style="margin-top: -8px;">
+    <strong>Expected:</strong> per-rank peak memory should be ~half the single-GPU peak (since the weight is sharded across 2 GPUs).
+    If it matches the single-GPU peak, FSDP2 is being defeated &mdash; the full weight is staying resident due to <code>save_for_backward</code>.
+  </p>
+
+  <!-- 5. THE FOUR CHECKS -->
+  <div class="day-header">
+    <span class="day-badge day2">5</span>
+    <h3>The Four Specific Checks &mdash; pass iff all four pass</h3>
+  </div>
+
+  <table class="matrix">
+    <thead>
+      <tr>
+        <th style="width: 70px;">#</th>
+        <th style="width: 200px;">Check</th>
+        <th>How</th>
+        <th>Pass criterion</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="person-cell">C1</td>
+        <td class="task-cell">Doesn't crash</td>
+        <td><code>torchrun</code> exits 0</td>
+        <td>No exceptions, no NCCL errors, no CUDA illegal-memory-access</td>
+      </tr>
+      <tr>
+        <td class="person-cell">C2</td>
+        <td class="task-cell">Forward output matches</td>
+        <td><code>allclose(fsdp_output, ref_output)</code></td>
+        <td><code>rtol=1e-4, atol=1e-5</code></td>
+      </tr>
+      <tr>
+        <td class="person-cell">C3</td>
+        <td class="task-cell">Gradients match</td>
+        <td><code>allclose</code> on input_grad AND weight_grad (after all-gather)</td>
+        <td><code>rtol=1e-4, atol=1e-5</code></td>
+      </tr>
+      <tr>
+        <td class="person-cell">C4</td>
+        <td class="task-cell">Memory is sharded</td>
+        <td><code>max_memory_allocated()</code> per rank</td>
+        <td>Per-rank peak &le; 60% of single-GPU peak</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="task-desc" style="margin-top: -16px;">
+    C1 is the floor (basic compatibility). C2+C3 are correctness. C4 is the &ldquo;is FSDP2 actually doing its job, or are we silently defeating it&rdquo; check.
+  </p>
+
+  <!-- 6. OUTCOMES -->
+  <div class="day-header">
+    <span class="day-badge day2">6</span>
+    <h3>Possible Outcomes &amp; Recommended Actions</h3>
+  </div>
+  <p class="section-desc">Every realistic outcome falls into one of six buckets. Each has a defined next action so P8 is not stuck deciding mid-test.</p>
+
+  <div class="task-grid">
+
+    <div class="task-card infra">
+      <div class="task-header">
+        <span class="task-id">A</span>
+        <span class="task-title">All four checks pass &check;</span>
+        <div class="task-tags"><span class="tag infra">Success</span></div>
+      </div>
+      <p class="task-desc"><strong>Meaning:</strong> The <code>autograd.Function</code> pattern survives FSDP2. The architectural bet is validated.</p>
+      <div class="exit-criteria">
+        <div class="ec-label">Action</div>
+        <ul>
+          <li>Write a 1-page result note: PyTorch version, FSDP2 API used (<code>fully_shard</code> vs older <code>FSDP</code>), exact tolerances achieved.</li>
+          <li>Tag the commit as <code>fsdp2-smoke-passed</code>.</li>
+          <li>Mark H15 complete. Update <code>FORGE_V1_TARGETS.md</code> to note FSDP2 risk retired.</li>
+          <li><strong>Do not</strong> generalize to other kernels yet &mdash; that's Phase 3 work. RoPE's precomputed cos/sin tables may still surface kernel-specific issues.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="task-card critical">
+      <div class="task-header">
+        <span class="task-id">B</span>
+        <span class="task-title">C1 fails &mdash; it crashes &times;</span>
+        <div class="task-tags"><span class="tag critical">Failure</span></div>
+      </div>
+      <p class="task-desc">Four likely sub-cases, each with a time-boxed fix.</p>
+      <div class="exit-criteria">
+        <div class="ec-label">Sub-cases</div>
+        <ul>
+          <li><strong>B.1 &mdash; Crash on FSDP2 wrap.</strong> Likely PyTorch too old, or weight stored as a buffer instead of <code>nn.Parameter</code>. Verify <code>torch.__version__ &ge; 2.4</code>; check <code>list(model.norm.parameters())</code>. <em>Time-box 30 min.</em></li>
+          <li><strong>B.2 &mdash; Crash during forward.</strong> Likely kernel reads weight's data pointer but FSDP2 detached storage post-all-gather. Print <code>weight.is_contiguous(), weight.data_ptr(), weight.shape</code> at kernel entry. Fix: <code>weight = weight.contiguous()</code> before passing to Triton. <em>Time-box 45 min.</em></li>
+          <li><strong>B.3 &mdash; Crash during backward.</strong> Likely <code>ctx.saved_tensors</code> returns a tensor whose storage was freed when FSDP2 discarded the full weight. Fix: save the module reference (<code>ctx.module = self</code>) and read <code>self.weight</code> in backward &mdash; FSDP2 will all-gather it again automatically. <em>Time-box 60 min.</em></li>
+          <li><strong>B.4 &mdash; NCCL deadlock / hang.</strong> Likely control-flow divergence between ranks. Add <code>dist.barrier()</code> after each major step; print rank ID at each step. Likely a bug in the test script, not the kernel. <em>Time-box 30 min.</em></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="task-card critical">
+      <div class="task-header">
+        <span class="task-id">C</span>
+        <span class="task-title">C2 fails &mdash; forward output mismatches &times;</span>
+        <div class="task-tags"><span class="tag critical">Failure</span></div>
+      </div>
+      <p class="task-desc"><strong>Meaning:</strong> Different outputs on FSDP2 vs single-GPU. The worst kind of failure &mdash; silent numerical corruption.</p>
+      <div class="exit-criteria">
+        <div class="ec-label">Most likely causes</div>
+        <ul>
+          <li>Weight read from a stale shard (kernel sees only the local shard, not the all-gathered full weight)</li>
+          <li>Mixed precision mismatch (FSDP2 auto-casts to bf16; single-GPU run was fp32)</li>
+          <li>Different RNG state across ranks for the input</li>
+        </ul>
+      </div>
+      <div class="exit-criteria" style="margin-top: 8px;">
+        <div class="ec-label">Action &mdash; time-box 90 min, then escalate to Xhitij</div>
+        <ul>
+          <li>Verify input <code>x</code> is identical on both ranks: <code>dist.all_reduce(x.sum())</code> should equal <code>2 * ref_input.sum()</code>.</li>
+          <li>Print <code>weight.shape</code> inside the kernel &mdash; it MUST be the full <code>[hidden]</code> shape, not the shard. If it's the shard, FSDP2's all-gather hook didn't fire.</li>
+          <li>Disable mixed precision (<code>mp_policy=None</code> in <code>fully_shard</code>) and re-run. If C2 passes without MP, the issue is precision casting.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="task-card critical">
+      <div class="task-header">
+        <span class="task-id">D</span>
+        <span class="task-title">C3 fails &mdash; gradients mismatch, forward correct &times;</span>
+        <div class="task-tags"><span class="tag critical">Failure</span></div>
+      </div>
+      <p class="task-desc"><strong>Meaning:</strong> Forward pattern works, backward pattern doesn't. Almost certainly an <code>autograd.Function.backward</code> issue.</p>
+      <div class="exit-criteria">
+        <div class="ec-label">Most likely causes</div>
+        <ul>
+          <li><code>ctx.save_for_backward(weight, ...)</code> saves the full all-gathered weight, but FSDP2 freed it post-forward &mdash; <code>ctx.saved_tensors</code> returns a corrupted reference.</li>
+          <li>The backward kernel writes gradients to a tensor FSDP2 doesn't know to reduce-scatter.</li>
+        </ul>
+      </div>
+      <div class="exit-criteria" style="margin-top: 8px;">
+        <div class="ec-label">Action &mdash; time-box 90 min</div>
+        <ul>
+          <li>Switch saving strategy &mdash; don't pass weight to <code>autograd.Function</code> at all. Compute the weighted output inside the <code>nn.Module</code> forward, not inside <code>autograd.Function</code>. Re-fetch weight in backward via the module.</li>
+          <li>If still failing, the fix is more invasive &mdash; the kernel API takes a <code>module</code> reference instead of raw tensors. <strong>Escalate to Xhitij with the proposed redesign before implementing.</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="task-card high">
+      <div class="task-header">
+        <span class="task-id">E</span>
+        <span class="task-title">C4 fails &mdash; correct, but memory not sharded &triangle;</span>
+        <div class="task-tags"><span class="tag high">Partial</span></div>
+      </div>
+      <p class="task-desc"><strong>Meaning:</strong> Mathematically correct, but each GPU holds the full weight &mdash; FSDP2's memory savings are defeated. <strong>The most subtle failure mode and the most important one to catch.</strong></p>
+      <div class="exit-criteria">
+        <div class="ec-label">Most likely cause</div>
+        <ul>
+          <li><code>ctx.save_for_backward(weight)</code> holds a reference to the full all-gathered weight, preventing FSDP2 from freeing it post-forward.</li>
+        </ul>
+      </div>
+      <div class="exit-criteria" style="margin-top: 8px;">
+        <div class="ec-label">Action &mdash; time-box 60 min during hackathon, soft fail</div>
+        <ul>
+          <li>Confirm with profiling &mdash; add <code>torch.cuda.memory._snapshot()</code> after forward and backward. The full weight should be visible if it's pinned.</li>
+          <li>Don't save the weight in <code>save_for_backward</code>. Either recompute the weight contribution in backward (FSDP2 will all-gather again, like activation checkpointing), OR save a view into the shard (advanced).</li>
+          <li><strong>V1 still ships:</strong> correctness is there; memory story is weak. Fix required pre-V1, not pre-hackathon-end. Continue to V1 plan even if unresolved.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="task-card high">
+      <div class="task-header">
+        <span class="task-id">F</span>
+        <span class="task-title">Mixed results across runs &mdash; flaky &triangle;</span>
+        <div class="task-tags"><span class="tag high">Flaky</span></div>
+      </div>
+      <p class="task-desc"><strong>Meaning:</strong> First run passes, second run fails &mdash; or vice versa.</p>
+      <div class="exit-criteria">
+        <div class="ec-label">Most likely causes</div>
+        <ul>
+          <li>NCCL timing race</li>
+          <li>Uninitialized memory in a Triton kernel (a <code>tl.load</code> reading undefined memory)</li>
+          <li>CUDA stream synchronization issue</li>
+        </ul>
+      </div>
+      <div class="exit-criteria" style="margin-top: 8px;">
+        <div class="ec-label">Action &mdash; time-box 60 min</div>
+        <ul>
+          <li>Run 10 times in a row. Record pass/fail rate.</li>
+          <li><strong>&gt;50% pass:</strong> likely race &mdash; add <code>torch.cuda.synchronize()</code> and <code>dist.barrier()</code> at boundaries.</li>
+          <li><strong>&lt;50% pass:</strong> likely uninitialized memory &mdash; review the Triton kernel for <code>tl.zeros</code> that should be initialized, or <code>tl.load</code> with a <code>mask</code> missing an <code>other=</code> default.</li>
+          <li>Flakiness is acceptable to defer if rare (&lt;10% failure rate); document and proceed.</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 7. DECISION TREE -->
+  <div class="day-header">
+    <span class="day-badge day2">7</span>
+    <h3>Decision Tree &mdash; what to do at 16:00</h3>
+  </div>
+  <p class="section-desc">By 16:00 P8 should be in exactly one of these states. The hackathon's overall success does NOT depend on the smoke test passing &mdash; it depends on knowing the answer.</p>
+
+  <table class="matrix">
+    <thead>
+      <tr>
+        <th style="width: 28%;">State at 16:00</th>
+        <th style="width: 28%;">Hackathon verdict</th>
+        <th>Next step (post-hackathon)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="task-cell">Outcome A (all green)</td>
+        <td><strong>Success &mdash; FSDP2 risk retired</strong></td>
+        <td>Proceed to Phase 3 (FSDP2 integration) per V1 plan</td>
+      </tr>
+      <tr>
+        <td class="task-cell">Outcome B/C/D fixed within time-box</td>
+        <td><strong>Success &mdash; pattern validated with one tweak</strong></td>
+        <td>Apply same tweak to all other kernels (Day 3+)</td>
+      </tr>
+      <tr>
+        <td class="task-cell">Outcome E (memory issue, correctness OK)</td>
+        <td><strong>Partial success</strong></td>
+        <td>Memory fix becomes a tracked Phase 3 task; V1 plan unchanged</td>
+      </tr>
+      <tr>
+        <td class="task-cell">B/C/D not fixed within time-box</td>
+        <td><strong>Failure &mdash; but valuable failure</strong></td>
+        <td>Phase 3 plan needs redesign; 1-day pattern-research spike before continuing kernel work</td>
+      </tr>
+      <tr>
+        <td class="task-cell">No data (crashed cloud, time ran out)</td>
+        <td><strong>Inconclusive</strong></td>
+        <td>Re-run on Day 3 morning; do NOT extend hackathon</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 8. DEMO REPORT -->
+  <div class="day-header">
+    <span class="day-badge day2">8</span>
+    <h3>What P8 Reports at the Day 2 Demo</h3>
+  </div>
+
+  <div class="approach-box">
+    <div class="approach-label">A single slide / paragraph &mdash; that's it</div>
+    <ul>
+      <li><strong>Verdict:</strong> Pass / Partial / Fail / Inconclusive</li>
+      <li><strong>Numbers:</strong> <code>max_diff(forward)</code>, <code>max_diff(input_grad)</code>, <code>max_diff(weight_grad)</code>, <code>peak_mem_per_rank</code> vs single-GPU peak</li>
+      <li><strong>One sentence on the implication for V1.</strong></li>
+      <li><em>No deeper analysis on Day 2 &mdash; analysis happens Day 3+ in the V1 timeline.</em></li>
+    </ul>
+  </div>
+
+  <!-- 9. FILES PRODUCED -->
+  <div class="day-header">
+    <span class="day-badge day2">9</span>
+    <h3>Files Produced by H15</h3>
+  </div>
+
+  <div class="dep-box">tests/
+└── test_fsdp2_smoke.py           <span class="dep-arrow"># The smoke test itself</span>
+benchmarks/results/
+├── reference_single_gpu.pt       <span class="dep-arrow"># Reference outputs/grads</span>
+└── fsdp2_smoke_results.json      <span class="dep-arrow"># {outcome: "A"/"B"/..., max_diffs: ..., peak_mem: ...}</span>
+docs/
+└── fsdp2_smoke_report.md         <span class="dep-arrow"># The 1-page report (Section 8 content + brief context)</span></div>
+
+  <!-- 10. ANTI-GOALS -->
+  <div class="day-header">
+    <span class="day-badge day2">10</span>
+    <h3>Anti-goals &mdash; things P8 should explicitly NOT do</h3>
+  </div>
+
+  <div class="risk-card">
+    <div class="risk-header">
+      <span class="risk-level high">Don't</span>
+      <span class="risk-title">Wrap a full Qwen3 model</span>
+    </div>
+    <p class="risk-body">The smoke test is RMSNorm + Linear only.</p>
+  </div>
+  <div class="risk-card">
+    <div class="risk-header">
+      <span class="risk-level high">Don't</span>
+      <span class="risk-title">Add LoRA</span>
+    </div>
+    <p class="risk-body">That's Phase 3.</p>
+  </div>
+  <div class="risk-card">
+    <div class="risk-header">
+      <span class="risk-level high">Don't</span>
+      <span class="risk-title">Test multiple kernels</span>
+    </div>
+    <p class="risk-body">One kernel, one pattern question.</p>
+  </div>
+  <div class="risk-card">
+    <div class="risk-header">
+      <span class="risk-level high">Don't</span>
+      <span class="risk-title">Optimize</span>
+    </div>
+    <p class="risk-body">Correctness only. Performance is Phase 4.</p>
+  </div>
+  <div class="risk-card">
+    <div class="risk-header">
+      <span class="risk-level high">Don't</span>
+      <span class="risk-title">Exceed time-boxes while debugging</span>
+    </div>
+    <p class="risk-body">Escalate to Xhitij instead.</p>
+  </div>
+  <div class="risk-card">
+    <div class="risk-header">
+      <span class="risk-level high">Don't</span>
+      <span class="risk-title">Rewrite the kernel's Triton code</span>
+    </div>
+    <p class="risk-body">If something fails, the fix is at the <code>autograd.Function</code> layer, not the Triton layer (Triton kernels have no awareness of distributed at all).</p>
+  </div>
+  <div class="risk-card">
+    <div class="risk-header">
+      <span class="risk-level high">Don't</span>
+      <span class="risk-title">Burn cloud credits past 16:00</span>
+    </div>
+    <p class="risk-body">Tear down the instance, even with inconclusive results. <strong>Inconclusive + alive credits &gt; conclusive + drained credits.</strong></p>
+  </div>
+</section>
+
+<footer>
+  Forge Hackathon &middot; May 23&ndash;24, 2026 &middot; Eight engineers. Two days. Nine kernels. Two models. FSDP2 smoke test. Ship it.
+</footer>
+
+</main>
+</div>
+
+<!-- Scroll spy -->
+<script>
+(function() {
+  const path = window.location.pathname.split('/').pop() || 'index.html';
+  const current = path === '' ? 'index.html' : path;
+
+  // Auto-expand the sidebar group matching the current page; collapse others
+  document.querySelectorAll('.sidebar-group').forEach(g => {
+    if (g.dataset.page === current) {
+      g.setAttribute('open', '');
+      g.classList.add('current-group');
+    } else {
+      g.removeAttribute('open');
+    }
+  });
+  const links = document.querySelectorAll('.sidebar nav a');
+  const sections = [];
+  links.forEach(a => {
+    const href = a.getAttribute('href') || '';
+    const onThisPage = href.startsWith('#') || href.startsWith(current);
+    if (onThisPage) {
+      a.classList.add('current-page');
+      const id = href.split('#')[1];
+      if (id) {
+        const el = document.getElementById(id);
+        if (el) sections.push({ el, link: a });
+      }
+    }
+  });
+
+  function onScroll() {
+    let active = null;
+    const y = window.scrollY + 120;
+    for (let i = sections.length - 1; i >= 0; i--) {
+      if (sections[i].el.offsetTop <= y) { active = sections[i]; break; }
+    }
+    document.querySelectorAll('.sidebar nav a.active').forEach(l => l.classList.remove('active'));
+    if (active) active.link.classList.add('active');
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+</script>
+</body>
+</html>

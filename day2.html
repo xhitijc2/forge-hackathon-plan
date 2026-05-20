@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forge Hackathon &mdash; Day 2 &middot; May 24, 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="layout">
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar">
+  <a class="sidebar-brand-link" href="index.html">
+    <div class="sidebar-brand"><span class="fire">Forge</span> Hackathon</div>
+    <div class="sidebar-date">May 23 &ndash; 24, 2026</div>
+  </a>
+  <div class="sidebar-note">Sections marked with <span class="important-marker">*</span> are important.</div>
+
+
+  <details class="sidebar-group" data-page="index.html">
+  <summary class="sidebar-section"><a href="index.html" class="sidebar-group-title important" onclick="event.stopPropagation()">Overview</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="index.html#target">Target &amp; Demo</a>
+    <a href="index.html#schedule">Schedule</a>
+    <a href="index.html#assignments">Team Assignments</a>
+    <a href="index.html#prep">Pre-Hackathon Checklist</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="day1.html">
+  <summary class="sidebar-section"><a href="day1.html" class="sidebar-group-title important" onclick="event.stopPropagation()">Day 1 &mdash; 8 Parallel Tracks</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="day1.html#d1-t1">H1 &middot; SwiGLU kernel</a>
+    <a href="day1.html#d1-t2">H2 &middot; RoPE kernel</a>
+    <a href="day1.html#d1-t3">H3 &middot; Cross-Entropy kernel</a>
+    <a href="day1.html#d1-t4">H4 &middot; LoRA MLP fused</a>
+    <a href="day1.html#d1-t5">H5 &middot; LoRA QKV fused</a>
+    <a href="day1.html#d1-t6">H6 &middot; GeGLU kernel</a>
+    <a href="day1.html#d1-t7">H7 &middot; Package scaffold + porting</a>
+    <a href="day1.html#d1-t8">H8 &middot; Patching infra + FSDP2</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="day2.html">
+  <summary class="sidebar-section"><a href="day2.html" class="sidebar-group-title important" onclick="event.stopPropagation()">Day 2 &mdash; Integration Sprint</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="day2.html#d2-t1">H9 &middot; Port Day 1 kernels</a>
+    <a href="day2.html#d2-t2">H10 &middot; forge.patch (Qwen3)</a>
+    <a href="day2.html#d2-t3">H11 &middot; forge.patch (Gemma)</a>
+    <a href="day2.html#d2-t4">H12 &middot; Training pipeline</a>
+    <a href="day2.html#d2-t5">H13 &middot; Test suite + integration</a>
+    <a href="day2.html#d2-t6">H14 &middot; Benchmarks + docs</a>
+    <a href="day2.html#d2-t7">H15 &middot; FSDP2 smoke test</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="smoketest.html">
+  <summary class="sidebar-section"><a href="smoketest.html" class="sidebar-group-title" onclick="event.stopPropagation()">Smoke Test</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="smoketest.html#smoketest">FSDP2 Smoke Test (H15)</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="practices.html">
+  <summary class="sidebar-section"><a href="practices.html" class="sidebar-group-title important" onclick="event.stopPropagation()">Engineering Practices</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="practices.html#good-practices">Good Practices (Build Workflow)</a>
+    <a href="practices.html#ai-tips">Tips for Using AI</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="details.html">
+  <summary class="sidebar-section"><a href="details.html" class="sidebar-group-title" onclick="event.stopPropagation()">Design Details</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="details.html#scope">Scope Priority Ladder</a>
+    <a href="details.html#repo">Repo + Package Layout</a>
+    <a href="details.html#patching-design">Patching Architecture</a>
+    <a href="details.html#qwen3-map">Qwen3 Patch Mapping</a>
+    <a href="details.html#gemma-map">Gemma Patch Mapping</a>
+    <a href="details.html#training">Training Loop (Custom)</a>
+    <a href="details.html#integration">Integration Tests</a>
+    <a href="details.html#decisions">Decision Log (12)</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="planning.html">
+  <summary class="sidebar-section"><a href="planning.html" class="sidebar-group-title" onclick="event.stopPropagation()">Planning</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="planning.html#deps">Dependencies</a>
+    <a href="planning.html#risks">Risks &amp; Contingency</a>
+    <a href="planning.html#stretch">Stretch Goals</a>
+  </nav>
+  </details>
+
+  <div class="sidebar-stats">
+    <div class="stat-row">
+      <span class="stat-label">Tasks</span>
+      <span class="stat-value">15 core + 2 stretch</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">People</span>
+      <span class="stat-value">8</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Hours</span>
+      <span class="stat-value">~13 hrs</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Kernels</span>
+      <span class="stat-value">9 (Qwen3 + Gemma)</span>
+    </div>
+  </div>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<main>
+
+<a class="back-link" href="index.html"><span class="arrow">&larr;</span> Back to overview</a>
+
+<div class="page-header">
+  <h1>Day 2 &mdash; Integration Sprint</h1>
+  <p>Sunday May 24 &middot; 10am&ndash;5pm. <strong>No serial bottleneck</strong> &mdash; the scaffold and patching infra were built on Day 1. Morning: port + wire patching on both models in parallel. Afternoon: training demos, FSDP2 smoke test, benchmarks, integration testing.</p>
+</div>
+
+<!-- ===== DAY 2: INTEGRATION SPRINT ===== -->
+<section id="day2">
+  <div class="day-header">
+    <span class="day-badge day2">Day 2</span>
+    <h3>Integration Sprint</h3>
+    <span class="day-time">Sun May 24 &middot; 10am&ndash;5pm</span>
+  </div>
+
+  <p class="section-desc">
+    Day 2 starts fast &mdash; <strong>no serial bottleneck</strong>. The package scaffold and patching infrastructure were built on Day 1.
+    Morning: port remaining kernels and wire up patching on both models in parallel.
+    Afternoon: training demos, FSDP2 smoke test, benchmarks, and integration testing.
+    Eight people working 7 tasks with natural convergence toward the dual-model demo.
+  </p>
+
+  <div class="task-grid">
+
+    <!-- H9: Port Day 1 Kernels -->
+    <div class="task-card infra" id="d2-t1">
+      <div class="task-header">
+        <span class="task-id">H9</span>
+        <span class="task-title">Port Day 1 Kernels into Package</span>
+        <div class="task-tags">
+          <span class="tag infra">Blocking</span>
+          <span class="tag time">~2 hrs</span>
+        </div>
+      </div>
+      <p class="task-desc">
+        Port the 5 new kernels from Day 1 into the forge package and register them. Since the package scaffold
+        already exists from H7, this is pure porting work &mdash; <strong>~2 hours instead of the original 2.5+</strong>.
+      </p>
+
+      <details class="task-steps">
+        <summary>Steps</summary>
+        <ol>
+          <li>Collect all 5 Day 1 kernel files (SwiGLU, RoPE, CE, LoRA MLP, LoRA QKV)</li>
+          <li>Port each into <code>forge/forge/kernels/</code>: fix imports, add <code>@register_kernel</code> decorator</li>
+          <li>If any Day 1 kernel was integrated late on Day 1, just clean up the port</li>
+          <li>Verify: <code>forge.kernels.list()</code> returns all 9 kernel names</li>
+          <li>Run all kernel tests from within the package to verify imports work</li>
+        </ol>
+      </details>
+
+      <div class="exit-criteria">
+        <div class="ec-label">Done When</div>
+        <ul>
+          <li><code>forge.kernels.list()</code> returns all 9 kernel names</li>
+          <li>Each kernel importable from the package</li>
+          <li>All kernel tests pass from within the package</li>
+        </ul>
+      </div>
+
+      <div class="assign-slot"><span class="person-icon">&#9679;</span> P7 (built the scaffold on Day 1 &mdash; knows the structure)</div>
+    </div>
+
+    <!-- H10: forge.patch Qwen3 -->
+    <div class="task-card infra" id="d2-t2">
+      <div class="task-header">
+        <span class="task-id">H10</span>
+        <span class="task-title">forge.patch / forge.unpatch (Qwen3)</span>
+        <div class="task-tags">
+          <span class="tag infra">Core</span>
+          <span class="tag time">~3 hrs</span>
+        </div>
+      </div>
+      <p class="task-desc">
+        Wire up the patching infrastructure (built on Day 1 by P8) to real kernels on Qwen3. The <code>patch.py</code> code
+        and <code>qwen3.py</code> mapping already exist &mdash; this is testing, debugging, and getting it to produce valid logits.
+      </p>
+
+      <details class="task-steps">
+        <summary>Steps</summary>
+        <ol>
+          <li>Wait for H9 to register at least the kernels needed for Qwen3 patching</li>
+          <li>Wire <code>qwen3.py</code> mapping to actual registered kernels (connect module types to real Forge modules)</li>
+          <li>Test: <code>forge.patch(model)</code> on Qwen2.5-0.5B, run forward pass, verify valid logits</li>
+          <li>Test: <code>forge.unpatch(model)</code> restores exact original output</li>
+          <li>Test: compose with <code>get_peft_model()</code> for LoRA (patch before LoRA)</li>
+          <li>Debug any issues &mdash; enable kernels one at a time: <code>forge.patch(model, kernels=["rmsnorm"])</code></li>
+        </ol>
+      </details>
+
+      <div class="approach-box">
+        <div class="approach-label">How to approach it</div>
+        <ul>
+          <li><strong>You wrote the patching code on Day 1.</strong> You know the internals. This is wiring + debugging, not design.</li>
+          <li>Start with a single kernel (RMSNorm) to verify the pattern end-to-end, then enable all.</li>
+          <li>If a forward pass produces NaN after patching, enable one kernel at a time to isolate the problem kernel.</li>
+          <li><strong>Must be done by 13:30 (CP-H5a)</strong> to unblock the training demo.</li>
+        </ul>
+      </div>
+
+      <div class="exit-criteria">
+        <div class="ec-label">Done When</div>
+        <ul>
+          <li><code>forge.patch(model)</code> on Qwen2.5-0.5B produces valid logits (no NaN, correct shape)</li>
+          <li><code>forge.unpatch(model)</code> restores original output exactly</li>
+          <li>Patched model composes with <code>get_peft_model()</code> &mdash; LoRA + Forge kernels together</li>
+          <li>Max logit diff between patched and unpatched &lt; 1.0</li>
+        </ul>
+      </div>
+
+      <div class="assign-slot"><span class="person-icon">&#9679;</span> P8 (wrote the patching infra on Day 1)</div>
+    </div>
+
+    <!-- H11: forge.patch Gemma -->
+    <div class="task-card infra" id="d2-t3">
+      <div class="task-header">
+        <span class="task-id">H11</span>
+        <span class="task-title">forge.patch (Gemma) + Gemma Training</span>
+        <div class="task-tags">
+          <span class="tag infra">Core</span>
+          <span class="tag time">~4 hrs</span>
+        </div>
+      </div>
+      <p class="task-desc">
+        Wire up Gemma patching using the infra from Day 1. The <code>gemma.py</code> mapping file exists &mdash;
+        connect it to real kernels with Gemma-specific configs (RMSNorm offset=1.0, GeGLU, Gemma RoPE base).
+        Write and run the Gemma training demo.
+      </p>
+
+      <details class="task-steps">
+        <summary>Steps</summary>
+        <ol>
+          <li>Wire <code>gemma.py</code> mapping to registered kernels with Gemma-specific config overrides</li>
+          <li>Test: <code>forge.patch(model)</code> on gemma-2-2b, forward pass produces valid logits</li>
+          <li>Test: <code>forge.unpatch(model)</code> restores original output exactly</li>
+          <li>Test: compose with <code>get_peft_model()</code> for LoRA</li>
+          <li>Write <code>examples/sft_gemma_lora.py</code>: LoRA SFT on gemma-2-2b with Forge kernels</li>
+          <li>Run 100-step training: verify loss decreases, no NaN, all Gemma-variant kernels active</li>
+          <li>Write <code>forge/tests/test_integration_gemma.py</code>: patched vs unpatched logit comparison</li>
+        </ol>
+      </details>
+
+      <div class="approach-box">
+        <div class="approach-label">How to approach it</div>
+        <ul>
+          <li><strong>You built the Gemma kernel variants on Day 1</strong> &mdash; you know exactly which params each kernel needs.</li>
+          <li>Reuse P8's patching infrastructure. <code>gemma.py</code> is the same structure as <code>qwen3.py</code>, just different module names and config overrides.</li>
+          <li>The training script is almost identical to Qwen3's &mdash; swap model name and adjust <code>target_modules</code> if Gemma names projections differently.</li>
+          <li><strong>Must have patching working by 14:00 (CP-H5b)</strong> to stay on track for the dual-model demo.</li>
+        </ul>
+      </div>
+
+      <div class="exit-criteria">
+        <div class="ec-label">Done When</div>
+        <ul>
+          <li><code>forge.patch(model)</code> on gemma-2-2b produces valid logits (no NaN, correct shape)</li>
+          <li>Gemma-specific kernel params applied correctly (offset=1.0, gelu, Gemma RoPE base)</li>
+          <li><code>examples/sft_gemma_lora.py</code> runs 100 steps, loss decreases, no NaN</li>
+          <li>Integration test: patched vs unpatched max logit diff &lt; 1.0, cosine sim &gt; 0.999</li>
+        </ul>
+      </div>
+
+      <div class="assign-slot"><span class="person-icon">&#9679;</span> P6 (built GeGLU kernel on Day 1 &mdash; knows the Gemma-specific kernel params)</div>
+    </div>
+
+    <!-- H12: Training Pipeline -->
+    <div class="task-card infra" id="d2-t4">
+      <div class="task-header">
+        <span class="task-id">H12</span>
+        <span class="task-title">Training Pipeline + Demo Scripts (Qwen3 + Gemma)</span>
+        <div class="task-tags">
+          <span class="tag infra">Core</span>
+          <span class="tag time">~4-5 hrs</span>
+        </div>
+      </div>
+      <p class="task-desc">
+        Write end-to-end LoRA SFT training scripts for <strong>both Qwen3 and Gemma</strong>. These are the hackathon demo.
+        First run without Forge kernels to verify baseline, then add <code>forge.patch</code>.
+      </p>
+
+      <details class="task-steps">
+        <summary>Steps</summary>
+        <ol>
+          <li>Write <code>examples/sft_qwen3_lora.py</code>: load Qwen2.5-0.5B, apply LoRA, train with HF Trainer</li>
+          <li>Use a tiny dataset (synthetic or <code>HuggingFaceTB/smollm-corpus</code>) &mdash; 1000 samples max</li>
+          <li><strong>Step A (Qwen3):</strong> Run WITHOUT <code>forge.patch</code> &mdash; verify vanilla training works (loss decreases)</li>
+          <li><strong>Step B (Qwen3):</strong> Add <code>forge.patch(model)</code> before LoRA &mdash; verify loss still decreases</li>
+          <li><strong>Step C (Gemma):</strong> Write <code>examples/sft_gemma_lora.py</code> &mdash; same pattern with <code>google/gemma-2-2b</code> (coordinate with H11)</li>
+          <li><strong>Step D (Gemma):</strong> Add <code>forge.patch(model)</code> &mdash; verify Gemma training also works</li>
+          <li>If loss diverges on either model: <code>forge.patch(model, kernels=["rmsnorm"])</code> &rarr; enable one at a time to isolate</li>
+          <li>Print per-step metrics: loss, learning rate, VRAM usage for both models</li>
+          <li>Write <code>examples/sft_qwen3_full_ft.py</code> (full fine-tuning, if time permits)</li>
+        </ol>
+      </details>
+
+      <div class="approach-box">
+        <div class="approach-label">How to approach it</div>
+        <ul>
+          <li><strong>Start the baseline (Step A) immediately at 10:15.</strong> Doesn't need forge.patch. Get vanilla training working while H9/H10 finish.</li>
+          <li>Use <code>Qwen2.5-0.5B</code> and <code>gemma-2-2b</code> (small models that fit on any GPU).</li>
+          <li>Coordinate with H11 (Gemma patching) for the Gemma demo script.</li>
+          <li>100 steps is enough for the demo. If patched loss shows NaN: enable kernels one at a time.</li>
+        </ul>
+      </div>
+
+      <div class="exit-criteria">
+        <div class="ec-label">Done When</div>
+        <ul>
+          <li><strong>Qwen3:</strong> Forge-patched LoRA SFT runs 100 steps, loss decreases, no NaN</li>
+          <li><strong>Gemma:</strong> Forge-patched LoRA SFT runs 100 steps, loss decreases, no NaN</li>
+          <li>All 9 Forge kernels confirmed active during training on both models</li>
+        </ul>
+      </div>
+
+      <div class="assign-slot"><span class="person-icon">&#9679;</span> P1 (wrote SwiGLU on Day 1 &mdash; knows the kernel internals for debugging)</div>
+    </div>
+
+    <!-- H13: Test Suite -->
+    <div class="task-card infra" id="d2-t5">
+      <div class="task-header">
+        <span class="task-id">H13</span>
+        <span class="task-title">Unified Test Suite + Integration Tests (Both Models)</span>
+        <div class="task-tags">
+          <span class="tag infra">Quality</span>
+          <span class="tag time">~4-5 hrs</span>
+        </div>
+      </div>
+      <p class="task-desc">
+        Collect all Day 1 kernel tests into <code>forge/tests/</code>. Write integration tests for <strong>both Qwen3 and Gemma</strong>:
+        patched vs unpatched output comparison. Single <code>pytest</code> command runs everything.
+      </p>
+
+      <details class="task-steps">
+        <summary>Steps</summary>
+        <ol>
+          <li>Move all Day 1 test files into <code>forge/tests/test_kernels/</code></li>
+          <li>Fix imports to use <code>from forge.kernels.X import ...</code></li>
+          <li>Verify: <code>python -m pytest forge/tests/test_kernels/ -v</code> &mdash; all PASS</li>
+          <li>Write <code>forge/tests/test_integration_qwen3.py</code>: patched vs unpatched logit comparison on Qwen2.5-0.5B</li>
+          <li>Write <code>forge/tests/test_integration_gemma.py</code>: patched vs unpatched logit comparison on gemma-2-2b</li>
+          <li>Write Gemma-specific kernel tests: <code>test_rmsnorm_gemma.py</code>, <code>test_swiglu_geglu.py</code></li>
+          <li>Verify: <code>python -m pytest forge/tests/ -v</code> &mdash; full suite PASSES</li>
+        </ol>
+      </details>
+
+      <div class="approach-box">
+        <div class="approach-label">How to approach it</div>
+        <ul>
+          <li>Copy methodology from <code>integration_gpt2large/integration_test.ipynb</code>.</li>
+          <li>Integration thresholds: max_diff &lt; 1.0, cosine_sim &gt; 0.999, top1_agreement &gt; 95%.</li>
+          <li>Can start collecting and fixing imports while waiting for H9 to finish porting.</li>
+          <li>Gemma integration test depends on H11 (Gemma patching). Write Qwen3 test first, adapt for Gemma later.</li>
+        </ul>
+      </div>
+
+      <div class="exit-criteria">
+        <div class="ec-label">Done When</div>
+        <ul>
+          <li><code>pytest forge/tests/ -v</code> &mdash; all kernel tests PASS</li>
+          <li><strong>Qwen3 integration:</strong> max logit diff &lt; 1.0, cosine sim &gt; 0.999</li>
+          <li><strong>Gemma integration:</strong> max logit diff &lt; 1.0, cosine sim &gt; 0.999</li>
+        </ul>
+      </div>
+
+      <div class="assign-slot"><span class="person-icon">&#9679;</span> P2 (wrote RoPE tests on Day 1 &mdash; knows the test patterns)</div>
+    </div>
+
+    <!-- H14: Benchmarks -->
+    <div class="task-card infra" id="d2-t6">
+      <div class="task-header">
+        <span class="task-id">H14</span>
+        <span class="task-title">Benchmarks + Results Table (Both Models)</span>
+        <div class="task-tags">
+          <span class="tag infra">Validation</span>
+          <span class="tag time">~4-5 hrs</span>
+        </div>
+      </div>
+      <p class="task-desc">
+        Run comprehensive benchmarks on all 9 kernels at <strong>both Qwen3 and Gemma shapes</strong>. Create results table: Forge vs PyTorch.
+        Verify the hard floor (no kernel slower than PyTorch).
+      </p>
+
+      <details class="task-steps">
+        <summary>Steps</summary>
+        <ol>
+          <li>Collect all Day 1 benchmark scripts</li>
+          <li>Run each at <strong>Qwen3 shapes</strong>: hidden=4096, intermediate=11008, seq_len in {512, 2048}</li>
+          <li>Run each at <strong>Gemma shapes</strong>: hidden=2048, intermediate=16384, seq_len in {512, 2048}</li>
+          <li>Benchmark Gemma variants: GeGLU, RMSNorm (offset=1.0), RoPE (Gemma base)</li>
+          <li>Create summary table: model | kernel | forge_ms | pytorch_ms | speedup | forge_mem | pytorch_mem</li>
+          <li>Flag any kernel slower than PyTorch (hard floor violation)</li>
+          <li>Save results to <code>benchmarks/results/hackathon_benchmarks.csv</code></li>
+        </ol>
+      </details>
+
+      <div class="exit-criteria">
+        <div class="ec-label">Done When</div>
+        <ul>
+          <li>All 9 kernels benchmarked at both Qwen3 and Gemma shapes</li>
+          <li>Results CSV exists with timing + memory data</li>
+          <li>No kernel has hard floor violation (&lt;1.0&times; PyTorch)</li>
+          <li>SwiGLU confirmed &ge;1.3&times; PyTorch (CRITICAL kernel)</li>
+        </ul>
+      </div>
+
+      <div class="assign-slot"><span class="person-icon">&#9679;</span> P4 (familiar with benchmarks/harness.py from Day 1)</div>
+    </div>
+
+    <!-- H15: FSDP2 Smoke Test -->
+    <div class="task-card high" id="d2-t7">
+      <div class="task-header">
+        <span class="task-id">H15</span>
+        <span class="task-title">FSDP2 Smoke Test (2-GPU)</span>
+        <div class="task-tags">
+          <span class="tag high">Core</span>
+          <span class="tag time">~3-4 hrs</span>
+        </div>
+      </div>
+      <p class="task-desc">
+        Run the FSDP2 smoke test script (written by P8 on Day 1) on a 2-GPU node. Verify that our <code>autograd.Function</code>
+        pattern works under FSDP2 sharding. This de-risks the entire Phase 3 of the V1 plan and gives the team a
+        <strong>head start on multi-GPU work</strong> starting Monday.
+        See the <a href="smoketest.html#smoketest" style="color: var(--blue);">FSDP2 Smoke Test deep-dive</a> for the full P8 working doc.
+      </p>
+
+      <details class="task-steps">
+        <summary>Steps</summary>
+        <ol>
+          <li>Set up 2-GPU node (should be provisioned Friday)</li>
+          <li>Install forge package on the 2-GPU node</li>
+          <li>Run P8's <code>test_fsdp2_smoke.py</code>: <code>torchrun --nproc-per-node=2 test_fsdp2_smoke.py</code></li>
+          <li>Compare gradients between 2-GPU FSDP2 run and single-GPU reference</li>
+          <li>If it fails: investigate <code>ctx.save_for_backward</code> behavior with sharded weights. Document the failure mode.</li>
+          <li>If it passes: try with more kernels (not just RMSNorm). Test SwiGLU and RoPE under FSDP2.</li>
+          <li>Document: PASS/FAIL, pattern requirements, Phase 3 playbook with specific recommendations</li>
+          <li>If FSDP2 passes early, try <code>LoRA + forge.patch + FSDP2</code> composition (the Phase 3 holy grail)</li>
+        </ol>
+      </details>
+
+      <div class="approach-box">
+        <div class="approach-label">How to approach it</div>
+        <ul>
+          <li><strong>The script is already written (by P8 on Day 1).</strong> Your job is to run it, debug failures, and document findings.</li>
+          <li>Start in the morning while others are porting/wiring. The 2-GPU node is independent of the main development flow.</li>
+          <li><strong>If the smoke test fails</strong>, that's still a valuable finding &mdash; document exactly what breaks and what pattern change is needed. This saves days of debugging in Phase 3.</li>
+          <li>Key question to answer: does <code>ctx.save_for_backward(weight)</code> work when FSDP2 has discarded the full weight after forward?</li>
+        </ul>
+      </div>
+
+      <div class="exit-criteria">
+        <div class="ec-label">Done When</div>
+        <ul>
+          <li><code>torchrun --nproc-per-node=2 test_fsdp2_smoke.py</code> &mdash; result documented (PASS or FAIL with diagnosis)</li>
+          <li>Gradients compared to single-GPU reference</li>
+          <li>Phase 3 playbook written: what works, what doesn't, recommended patterns</li>
+          <li>If PASS: at least 2 additional kernels verified under FSDP2</li>
+        </ul>
+      </div>
+
+      <div class="assign-slot"><span class="person-icon">&#9679;</span> P3 (studied CE kernel + online softmax &mdash; familiar with numerical patterns)</div>
+    </div>
+
+  </div><!-- /task-grid -->
+
+  <div class="checkpoint">
+    <span class="cp-icon">&#127942;</span>
+    <div class="cp-content">
+      <div class="cp-time">Checkpoint CP-H6 / Demo &middot; Sunday 4:00pm</div>
+      <div class="cp-title">LoRA SFT runs end-to-end on BOTH Qwen3 AND Gemma with all Forge kernels active</div>
+      <div class="cp-desc">Both "Sunday Evening Demo" scripts run. 100+ training steps on each model, loss decreases, no NaN. forge.patch activates all 9 kernels with architecture-specific params. Benchmark results collected for both models. Integration tests pass on both.</div>
+    </div>
+  </div>
+
+  <div class="checkpoint">
+    <span class="cp-icon">&#9889;</span>
+    <div class="cp-content">
+      <div class="cp-time">Checkpoint CP-H7 &middot; Sunday 4:30pm</div>
+      <div class="cp-title">FSDP2 smoke test complete &mdash; Phase 3 de-risked</div>
+      <div class="cp-desc">autograd.Function pattern verified (or failure mode documented) under FSDP2. Phase 3 playbook written. Team knows exactly what to build starting Monday.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Forge Hackathon &middot; May 23&ndash;24, 2026 &middot; Eight engineers. Two days. Nine kernels. Two models. FSDP2 smoke test. Ship it.
+</footer>
+
+</main>
+</div>
+
+<!-- Scroll spy -->
+<script>
+(function() {
+  const path = window.location.pathname.split('/').pop() || 'index.html';
+  const current = path === '' ? 'index.html' : path;
+
+  // Auto-expand the sidebar group matching the current page; collapse others
+  document.querySelectorAll('.sidebar-group').forEach(g => {
+    if (g.dataset.page === current) {
+      g.setAttribute('open', '');
+      g.classList.add('current-group');
+    } else {
+      g.removeAttribute('open');
+    }
+  });
+  const links = document.querySelectorAll('.sidebar nav a');
+  const sections = [];
+  links.forEach(a => {
+    const href = a.getAttribute('href') || '';
+    const onThisPage = href.startsWith('#') || href.startsWith(current);
+    if (onThisPage) {
+      a.classList.add('current-page');
+      const id = href.split('#')[1];
+      if (id) {
+        const el = document.getElementById(id);
+        if (el) sections.push({ el, link: a });
+      }
+    }
+  });
+
+  function onScroll() {
+    let active = null;
+    const y = window.scrollY + 120;
+    for (let i = sections.length - 1; i >= 0; i--) {
+      if (sections[i].el.offsetTop <= y) { active = sections[i]; break; }
+    }
+    document.querySelectorAll('.sidebar nav a.active').forEach(l => l.classList.remove('active'));
+    if (active) active.link.classList.add('active');
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+</script>
+</body>
+</html>

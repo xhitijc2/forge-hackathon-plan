@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forge Hackathon &mdash; Design Details &middot; Package, Patching, Training</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="layout">
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar">
+  <a class="sidebar-brand-link" href="index.html">
+    <div class="sidebar-brand"><span class="fire">Forge</span> Hackathon</div>
+    <div class="sidebar-date">May 23 &ndash; 24, 2026</div>
+  </a>
+  <div class="sidebar-note">Sections marked with <span class="important-marker">*</span> are important.</div>
+
+
+  <details class="sidebar-group" data-page="index.html">
+  <summary class="sidebar-section"><a href="index.html" class="sidebar-group-title important" onclick="event.stopPropagation()">Overview</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="index.html#target">Target &amp; Demo</a>
+    <a href="index.html#schedule">Schedule</a>
+    <a href="index.html#assignments">Team Assignments</a>
+    <a href="index.html#prep">Pre-Hackathon Checklist</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="day1.html">
+  <summary class="sidebar-section"><a href="day1.html" class="sidebar-group-title important" onclick="event.stopPropagation()">Day 1 &mdash; 8 Parallel Tracks</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="day1.html#d1-t1">H1 &middot; SwiGLU kernel</a>
+    <a href="day1.html#d1-t2">H2 &middot; RoPE kernel</a>
+    <a href="day1.html#d1-t3">H3 &middot; Cross-Entropy kernel</a>
+    <a href="day1.html#d1-t4">H4 &middot; LoRA MLP fused</a>
+    <a href="day1.html#d1-t5">H5 &middot; LoRA QKV fused</a>
+    <a href="day1.html#d1-t6">H6 &middot; GeGLU kernel</a>
+    <a href="day1.html#d1-t7">H7 &middot; Package scaffold + porting</a>
+    <a href="day1.html#d1-t8">H8 &middot; Patching infra + FSDP2</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="day2.html">
+  <summary class="sidebar-section"><a href="day2.html" class="sidebar-group-title important" onclick="event.stopPropagation()">Day 2 &mdash; Integration Sprint</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="day2.html#d2-t1">H9 &middot; Port Day 1 kernels</a>
+    <a href="day2.html#d2-t2">H10 &middot; forge.patch (Qwen3)</a>
+    <a href="day2.html#d2-t3">H11 &middot; forge.patch (Gemma)</a>
+    <a href="day2.html#d2-t4">H12 &middot; Training pipeline</a>
+    <a href="day2.html#d2-t5">H13 &middot; Test suite + integration</a>
+    <a href="day2.html#d2-t6">H14 &middot; Benchmarks + docs</a>
+    <a href="day2.html#d2-t7">H15 &middot; FSDP2 smoke test</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="smoketest.html">
+  <summary class="sidebar-section"><a href="smoketest.html" class="sidebar-group-title" onclick="event.stopPropagation()">Smoke Test</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="smoketest.html#smoketest">FSDP2 Smoke Test (H15)</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="practices.html">
+  <summary class="sidebar-section"><a href="practices.html" class="sidebar-group-title important" onclick="event.stopPropagation()">Engineering Practices</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="practices.html#good-practices">Good Practices (Build Workflow)</a>
+    <a href="practices.html#ai-tips">Tips for Using AI</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="details.html">
+  <summary class="sidebar-section"><a href="details.html" class="sidebar-group-title" onclick="event.stopPropagation()">Design Details</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="details.html#scope">Scope Priority Ladder</a>
+    <a href="details.html#repo">Repo + Package Layout</a>
+    <a href="details.html#patching-design">Patching Architecture</a>
+    <a href="details.html#qwen3-map">Qwen3 Patch Mapping</a>
+    <a href="details.html#gemma-map">Gemma Patch Mapping</a>
+    <a href="details.html#training">Training Loop (Custom)</a>
+    <a href="details.html#integration">Integration Tests</a>
+    <a href="details.html#decisions">Decision Log (12)</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="planning.html">
+  <summary class="sidebar-section"><a href="planning.html" class="sidebar-group-title" onclick="event.stopPropagation()">Planning</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="planning.html#deps">Dependencies</a>
+    <a href="planning.html#risks">Risks &amp; Contingency</a>
+    <a href="planning.html#stretch">Stretch Goals</a>
+  </nav>
+  </details>
+
+  <div class="sidebar-stats">
+    <div class="stat-row">
+      <span class="stat-label">Tasks</span>
+      <span class="stat-value">15 core + 2 stretch</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">People</span>
+      <span class="stat-value">8</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Hours</span>
+      <span class="stat-value">~13 hrs</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Kernels</span>
+      <span class="stat-value">9 (Qwen3 + Gemma)</span>
+    </div>
+  </div>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<main>
+
+<a class="back-link" href="index.html"><span class="arrow">&larr;</span> Back to overview</a>
+
+<div class="page-header">
+  <h1>Design Details</h1>
+  <p>The finer details the team needs to execute Day 2 without ambiguity. Exact package layout, patching pattern, concrete Qwen3 + Gemma module mappings, the custom training loop, integration test tolerances, and the locked decision log. <strong>When in doubt, this page is the source of truth.</strong></p>
+</div>
+
+<!-- ===== SCOPE PRIORITY LADDER ===== -->
+<section id="scope">
+  <h2>Scope Priority Ladder</h2>
+  <p class="section-desc">
+    Everything on Day 2 is structured around one principle: <strong>the FSDP2 smoke test never slips</strong>. If we run out of time, we slip from the bottom of this ladder, not the top. The smoke test answers the single biggest architectural risk in V1 &mdash; failing to get a verdict on it is worse than shipping a partial training demo.
+  </p>
+
+  <table class="matrix">
+    <thead>
+      <tr>
+        <th>Priority</th>
+        <th>Item</th>
+        <th>Required for the smoke test?</th>
+        <th>Required for the training-E2E demo?</th>
+        <th>Slips when behind?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>1</strong></td>
+        <td class="task-cell">Package installable (<code>pip install -e .</code>) + <code>ForgeRMSNorm</code> ported</td>
+        <td style="color: var(--green);">Yes</td>
+        <td style="color: var(--green);">Yes</td>
+        <td style="color: var(--green);"><strong>Never</strong></td>
+      </tr>
+      <tr>
+        <td><strong>2</strong></td>
+        <td class="task-cell">Smoke test script (<code>tests/test_fsdp2_smoke.py</code>) staged and runnable</td>
+        <td style="color: var(--green);">Yes</td>
+        <td>No</td>
+        <td style="color: var(--green);"><strong>Never</strong></td>
+      </tr>
+      <tr>
+        <td><strong>3</strong></td>
+        <td class="task-cell">Patching infra (<code>forge.patch</code>/<code>forge.unpatch</code>) working</td>
+        <td>No</td>
+        <td style="color: var(--green);">Yes</td>
+        <td>If H10 is past 13:30</td>
+      </tr>
+      <tr>
+        <td><strong>4</strong></td>
+        <td class="task-cell">Qwen3 patches: RMSNorm + SwiGLU + Embedding</td>
+        <td>No</td>
+        <td style="color: var(--green);">Yes</td>
+        <td>RoPE drops first if H10 slips</td>
+      </tr>
+      <tr>
+        <td><strong>5</strong></td>
+        <td class="task-cell">Gemma patches: RMSNorm(offset=1.0) + GeGLU + Embedding</td>
+        <td>No</td>
+        <td style="color: var(--green);">Yes</td>
+        <td>Demo with Qwen3 only if H11 slips</td>
+      </tr>
+      <tr>
+        <td><strong>6</strong></td>
+        <td class="task-cell">Qwen3 LoRA SFT training E2E (500 steps, loss decreases)</td>
+        <td>No</td>
+        <td style="color: var(--green);">Yes</td>
+        <td>Reduce to 200 steps before dropping</td>
+      </tr>
+      <tr>
+        <td><strong>7</strong></td>
+        <td class="task-cell">Gemma LoRA SFT training E2E</td>
+        <td>No</td>
+        <td style="color: var(--green);">Yes</td>
+        <td>Drop before Qwen3</td>
+      </tr>
+      <tr>
+        <td><strong>8</strong></td>
+        <td class="task-cell">Integration tests (single-step + convergence) both models</td>
+        <td>No</td>
+        <td>Receipts</td>
+        <td>Single-step only, skip convergence</td>
+      </tr>
+      <tr>
+        <td><strong>9 (bottom)</strong></td>
+        <td class="task-cell">RoPE patch + LoRA-fused patches + CE/Fused-Linear-CE patch</td>
+        <td>No</td>
+        <td>Stretch</td>
+        <td style="color: var(--yellow);"><strong>Drop first</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="approach-box">
+    <div class="approach-label">The Rule</div>
+    <ul>
+      <li><strong>Items 1 + 2 MUST be done by 13:00 Sunday.</strong> P3 (smoke test runner) cannot start without them. Period.</li>
+      <li><strong>Items 3 &ndash; 5 are the demo.</strong> If we ship these, we have a working "two architectures, kernels active" story even without convergence numbers.</li>
+      <li><strong>Item 9 is acceptable to drop.</strong> CE/RoPE/LoRA-fused patches are Phase 2 work in the V1 plan anyway &mdash; pulling them in is a bonus, not a target.</li>
+      <li><strong>Never trade smoke-test readiness for more kernel patches.</strong> A passing smoke test + Qwen3-only demo > full kernel patches + no smoke test.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===== REPO + PACKAGE LAYOUT ===== -->
+<section id="repo">
+  <h2>Repo + Package Layout</h2>
+  <p class="section-desc">The concrete directory structure that P7 builds on Day 1. Do not invent alternate structures &mdash; copy this exactly so everyone's import paths line up.</p>
+
+  <pre><span class="comment"># Working directory: /Users/.../Forge KT/</span>
+forge_kt/                              <span class="comment"># existing repo root</span>
+└── forge/                             <span class="comment"># NEW &mdash; the pip-installable package (P7 creates Day 1)</span>
+    ├── pyproject.toml                 <span class="comment"># name=forge, version=0.0.1.dev1, deps=[torch,triton,transformers]</span>
+    ├── README.md                      <span class="comment"># one-paragraph + quickstart</span>
+    ├── forge/                         <span class="comment"># the importable Python package</span>
+    │   ├── __init__.py                <span class="comment"># exports: patch, unpatch, __version__</span>
+    │   ├── kernels/
+    │   │   ├── __init__.py            <span class="comment"># exports each Forge* class for explicit imports</span>
+    │   │   ├── rmsnorm.py             <span class="comment"># ForgeRMSNorm (nn.Module) + ForgeRMSNormFunction</span>
+    │   │   ├── layernorm.py
+    │   │   ├── embedding.py
+    │   │   ├── swiglu.py              <span class="comment"># Handles BOTH SiLU and GELU via activation: tl.constexpr</span>
+    │   │   ├── rope.py
+    │   │   ├── cross_entropy.py
+    │   │   ├── fused_linear_ce.py
+    │   │   ├── lora_mlp.py
+    │   │   └── lora_qkv.py
+    │   └── patching/
+    │       ├── __init__.py            <span class="comment"># exports: patch, unpatch</span>
+    │       ├── core.py                <span class="comment"># architecture-agnostic patch/unpatch logic</span>
+    │       ├── qwen3.py               <span class="comment"># QWEN3_MAPPING dict</span>
+    │       └── gemma.py               <span class="comment"># GEMMA_MAPPING dict</span>
+    ├── tests/
+    │   ├── test_kernels/              <span class="comment"># one test_*.py per kernel</span>
+    │   ├── test_patch_qwen3.py
+    │   ├── test_patch_gemma.py
+    │   ├── test_integration_qwen3.py  <span class="comment"># patched vs unpatched logits</span>
+    │   ├── test_integration_gemma.py
+    │   └── test_fsdp2_smoke.py        <span class="comment"># H15 smoke test (see smoketest.html)</span>
+    ├── examples/
+    │   ├── sft_qwen3_lora.py          <span class="comment"># ~40-line custom training loop</span>
+    │   └── sft_gemma_lora.py
+    └── benchmarks/
+        └── ...</pre>
+
+  <div class="approach-box">
+    <div class="approach-label">Locked Decisions on Layout</div>
+    <ul>
+      <li><strong>No dynamic registry.</strong> We have 9 kernels, not 50 &mdash; explicit imports are not painful. The patching mapping files (<code>qwen3.py</code>, <code>gemma.py</code>) ARE the de-facto registry. Skipping the registry removes one layer of indirection from the codebase.</li>
+      <li><strong>Package directory at <code>./forge/</code>, not <code>./src/forge/</code>.</strong> Simpler. No src-layout learning curve. Liger-Kernel uses the same flat layout.</li>
+      <li><strong>One kernel file = one Triton kernel + one autograd.Function + one nn.Module.</strong> Do NOT split across files. Reading <code>rmsnorm.py</code> top-to-bottom should give the full picture.</li>
+      <li><strong>SwiGLU and GeGLU live in the SAME file</strong> (<code>kernels/swiglu.py</code>). The activation function is a <code>tl.constexpr</code> branch &mdash; compile-time, zero runtime overhead. P1 builds the SiLU path, P6 builds the GELU path, both PR into this one file.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===== PATCHING ARCHITECTURE ===== -->
+<section id="patching-design">
+  <h2>Patching Architecture</h2>
+  <p class="section-desc">How <code>forge.patch(model)</code> actually works. There are two valid approaches &mdash; we chose forward replacement (monkey-patching). The other approach (module replacement) is explicitly rejected.</p>
+
+  <table class="matrix">
+    <thead>
+      <tr>
+        <th>Approach</th>
+        <th>What it does</th>
+        <th>Pro</th>
+        <th>Con</th>
+        <th>Decision</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Module replacement</strong></td>
+        <td>Walk <code>model.named_modules()</code>, replace <code>Qwen2RMSNorm</code> instances with <code>ForgeRMSNorm</code> instances (copy the weight)</td>
+        <td>Clean, type-correct</td>
+        <td>Breaks HF state_dict loading. Confuses FSDP2's wrapping policies (which match on the original class name).</td>
+        <td style="color: #ef4444;">Rejected</td>
+      </tr>
+      <tr>
+        <td><strong>Forward replacement</strong></td>
+        <td>Walk modules, monkey-patch <code>module.forward = forge_forward_closure(module)</code>. Preserves the original module object.</td>
+        <td>State_dict compatible. FSDP2-friendly. Reversible via <code>unpatch</code>. Already validated in <code>integration_gpt2large/integration_test.ipynb</code>.</td>
+        <td>Monkey-patching is "ugly" but bounded.</td>
+        <td style="color: var(--green);"><strong>Chosen</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Concrete pattern</h3>
+  <pre><span class="comment"># forge/patching/core.py</span>
+<span class="keyword">def</span> <span class="func">patch</span>(model, kernels=<span class="keyword">None</span>):
+    <span class="string">"""Patch HF model in place. Returns the same model object.
+
+    Args:
+        model: HF causal LM (Qwen3 or Gemma).
+        kernels: Optional list of kernel names to enable.
+                 None = enable all available. Useful for debugging:
+                 forge.patch(model, kernels=["rmsnorm"]) enables ONE kernel.
+    """</span>
+    <span class="keyword">if</span> <span class="func">hasattr</span>(model, <span class="string">'_forge_patched'</span>):
+        <span class="keyword">raise</span> <span class="func">RuntimeError</span>(<span class="string">"Model already patched. Call unpatch first."</span>)
+
+    arch = <span class="func">_detect_architecture</span>(model)        <span class="comment"># "qwen3" or "gemma"</span>
+    mapping = <span class="func">_load_mapping</span>(arch)              <span class="comment"># imports qwen3.py or gemma.py</span>
+
+    model._forge_originals = {}                  <span class="comment"># module_id -> original_forward</span>
+    <span class="keyword">for</span> name, module <span class="keyword">in</span> model.<span class="func">named_modules</span>():
+        cls_name = <span class="func">type</span>(module).__name__
+        <span class="keyword">if</span> cls_name <span class="keyword">in</span> mapping:
+            kernel_name, config = mapping[cls_name]
+            <span class="keyword">if</span> kernels <span class="keyword">is not</span> <span class="keyword">None</span> <span class="keyword">and</span> kernel_name <span class="keyword">not in</span> kernels:
+                <span class="keyword">continue</span>
+            <span class="func">_replace_forward</span>(module, kernel_name, config, model._forge_originals)
+
+    model._forge_patched = <span class="keyword">True</span>
+    <span class="keyword">return</span> model
+
+
+<span class="keyword">def</span> <span class="func">unpatch</span>(model):
+    <span class="string">"""Restore original forwards. Idempotent."""</span>
+    <span class="keyword">if</span> <span class="keyword">not</span> <span class="func">hasattr</span>(model, <span class="string">'_forge_patched'</span>):
+        <span class="keyword">return</span> model
+    <span class="keyword">for</span> module_id, original_fwd <span class="keyword">in</span> model._forge_originals.<span class="func">items</span>():
+        module = <span class="func">_id_to_module</span>(model, module_id)
+        module.forward = original_fwd
+    <span class="keyword">del</span> model._forge_originals
+    <span class="keyword">del</span> model._forge_patched
+    <span class="keyword">return</span> model
+
+
+<span class="comment"># THE CLOSURE FACTORY &mdash; critical to avoid Python's late-binding loop bug</span>
+<span class="keyword">def</span> <span class="func">_replace_forward</span>(module, kernel_name, config, originals):
+    originals[<span class="func">id</span>(module)] = module.forward
+    forge_module = <span class="func">_build_forge_kernel</span>(kernel_name, config, module)
+    module.forward = <span class="func">_make_forward</span>(forge_module)
+
+<span class="keyword">def</span> <span class="func">_make_forward</span>(forge_module):
+    <span class="keyword">def</span> <span class="func">forward</span>(*args, **kwargs):
+        <span class="keyword">return</span> forge_module(*args, **kwargs)
+    <span class="keyword">return</span> forward                          <span class="comment"># closure binds forge_module correctly</span>
+
+
+<span class="keyword">def</span> <span class="func">_detect_architecture</span>(model):
+    model_type = model.config.model_type     <span class="comment"># set by HF</span>
+    <span class="keyword">if</span> model_type == <span class="string">"qwen2"</span>: <span class="keyword">return</span> <span class="string">"qwen3"</span>   <span class="comment"># Qwen2.5 reports "qwen2"</span>
+    <span class="keyword">if</span> model_type == <span class="string">"gemma2"</span>: <span class="keyword">return</span> <span class="string">"gemma"</span>
+    <span class="keyword">raise</span> <span class="func">ValueError</span>(<span class="func">f</span><span class="string">"Unsupported architecture: {model_type}"</span>)</pre>
+
+  <div class="approach-box">
+    <div class="approach-label">Locked Decisions on Patching</div>
+    <ul>
+      <li><strong>Forward replacement</strong> (monkey-patch <code>module.forward</code>), NOT module replacement. Already validated in the GPT-2 integration test.</li>
+      <li><strong>Idempotency:</strong> Double-patch <strong>raises RuntimeError</strong>. We do NOT silently no-op. Failing loud catches the bug where someone forgets to <code>unpatch</code> in a test fixture.</li>
+      <li><strong>Selective patching:</strong> <code>forge.patch(model, kernels=["rmsnorm"])</code> is supported from Day 2 onward. This is the #1 debugging tool when training diverges &mdash; enable kernels one at a time to bisect the broken one.</li>
+      <li><strong>Closure factory pattern is mandatory.</strong> Do NOT write <code>module.forward = lambda x: forge_module(x)</code> directly inside a loop &mdash; Python's late binding will silently break it. Use <code>_make_forward()</code>.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===== QWEN3 PATCH MAPPING ===== -->
+<section id="qwen3-map">
+  <h2>Qwen3 Patch Mapping</h2>
+  <p class="section-desc">Exact mapping from HF Qwen2/Qwen3 module class names to Forge kernels. P8 owns this file on Day 2.</p>
+
+  <pre><span class="comment"># forge/patching/qwen3.py</span>
+
+QWEN3_MAPPING = {
+    <span class="comment"># MUST-SHIP (priority items 4 in the scope ladder)</span>
+    <span class="string">"Qwen2RMSNorm"</span>:    (<span class="string">"rmsnorm"</span>,     {<span class="string">"offset"</span>: 0.0}),
+    <span class="string">"Qwen2MLP"</span>:         (<span class="string">"swiglu_mlp"</span>,  {<span class="string">"activation"</span>: <span class="string">"silu"</span>}),    <span class="comment"># patches whole MLP forward</span>
+    <span class="string">"Embedding"</span>:        (<span class="string">"embedding"</span>,   {}),                          <span class="comment"># nn.Embedding on embed_tokens</span>
+
+    <span class="comment"># STRETCH (priority 9 &mdash; drop if behind)</span>
+    <span class="comment"># "Qwen2Attention":   ("attention_with_forge_rope", {"base": 10000.0}),</span>
+    <span class="comment"># CE / Fused-Linear-CE are loss-step interceptions, not module patches.</span>
+    <span class="comment"># Deferred to Phase 2 of the V1 plan.</span>
+}</pre>
+
+  <h3>Why these three are the must-ship choices</h3>
+  <table class="matrix">
+    <thead>
+      <tr>
+        <th>Kernel</th>
+        <th>Patch target</th>
+        <th>Difficulty</th>
+        <th>Day 2 status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>RMSNorm</td>
+        <td><code>Qwen2RMSNorm.forward</code></td>
+        <td>Easy &mdash; same as GPT-2 LayerNorm pattern</td>
+        <td style="color: var(--green);">Must</td>
+      </tr>
+      <tr>
+        <td>SwiGLU MLP</td>
+        <td><code>Qwen2MLP.forward</code> (replace whole MLP)</td>
+        <td>Easy &mdash; <code>Qwen2MLP.__init__</code> exposes <code>gate_proj/up_proj/down_proj</code> as attributes; we call them inside our replacement.</td>
+        <td style="color: var(--green);">Must</td>
+      </tr>
+      <tr>
+        <td>Embedding</td>
+        <td><code>nn.Embedding.forward</code> of <code>embed_tokens</code></td>
+        <td>Easy &mdash; single tensor lookup</td>
+        <td style="color: var(--green);">Must</td>
+      </tr>
+      <tr>
+        <td>RoPE</td>
+        <td><code>Qwen2Attention.forward</code> (have to rewrite parts of it)</td>
+        <td>Medium &mdash; RoPE is called INSIDE attention forward, must surgically replace just the rotary call</td>
+        <td style="color: var(--yellow);">Stretch</td>
+      </tr>
+      <tr>
+        <td>Cross-Entropy</td>
+        <td>Hook the loss step (when labels are passed)</td>
+        <td>Hard &mdash; requires intercepting <code>model.forward</code> output handling</td>
+        <td style="color: #ef4444;">Defer</td>
+      </tr>
+      <tr>
+        <td>Fused Linear+CE</td>
+        <td>Same as CE plus the <code>lm_head</code> Linear</td>
+        <td>Hard &mdash; coupled loss + projection step</td>
+        <td style="color: #ef4444;">Defer</td>
+      </tr>
+      <tr>
+        <td>LoRA MLP/QKV fused</td>
+        <td>Replace PEFT's <code>Linear.forward</code> AFTER LoRA wrap</td>
+        <td>Hard &mdash; couples with PEFT internals</td>
+        <td style="color: #ef4444;">Defer</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Patching the <strong>whole MLP</strong> (not just the activation) is intentional &mdash; it matches how Liger and Unsloth structure their patches. The MLP replacement code knows about <code>gate_proj</code>, <code>up_proj</code>, <code>down_proj</code> as module attributes and calls them inside the Triton-backed forward. This is cleaner than trying to splice into Qwen's <code>F.silu(gate) * up</code> call site.</p>
+</section>
+
+<!-- ===== GEMMA PATCH MAPPING ===== -->
+<section id="gemma-map">
+  <h2>Gemma Patch Mapping</h2>
+  <p class="section-desc">Identical structure to Qwen3, just three configuration differences. P6 owns this file on Day 2.</p>
+
+  <pre><span class="comment"># forge/patching/gemma.py</span>
+
+GEMMA_MAPPING = {
+    <span class="comment"># Same kernels as Qwen3, three parameter differences:</span>
+    <span class="string">"Gemma2RMSNorm"</span>:   (<span class="string">"rmsnorm"</span>,     {<span class="string">"offset"</span>: 1.0}),                  <span class="comment"># +1 offset on weight</span>
+    <span class="string">"Gemma2MLP"</span>:        (<span class="string">"swiglu_mlp"</span>,  {<span class="string">"activation"</span>: <span class="string">"gelu"</span>}),           <span class="comment"># GELU not SiLU</span>
+    <span class="string">"Embedding"</span>:        (<span class="string">"embedding"</span>,   {}),                                <span class="comment"># identical to Qwen3</span>
+
+    <span class="comment"># "Gemma2Attention": ("attention_with_forge_rope", {"base": ???}),</span>
+    <span class="comment"># RoPE base is Gemma-specific &mdash; P6 verifies the exact value from model.config on Day 1.</span>
+}</pre>
+
+  <div class="approach-box">
+    <div class="approach-label">P6 Prep Work (Day 1 morning)</div>
+    <ul>
+      <li>SSH to a small cloud GPU, load <code>google/gemma-2-2b</code>, run:<br><code>for name, m in model.named_modules(): print(name, type(m).__name__)</code></li>
+      <li>Verify the actual class names (the names above are best-guess from HF source &mdash; <strong>must be confirmed</strong>).</li>
+      <li>Read <code>model.config</code> and confirm: <code>rope_theta</code> (the RoPE base), confirms no surprise architectural differences.</li>
+      <li>Share findings with P8 by 11:00am Day 1 so the mapping file is accurate.</li>
+    </ul>
+  </div>
+
+  <p><strong>Target model: <code>google/gemma-2-2b</code></strong>. Small enough for single-GPU development, same Gemma-2 architecture as larger variants (gemma-2-9b, gemma-2-27b). If Gemma-2 has sliding window attention quirks that conflict with our kernels, document and demo with Qwen3 only.</p>
+</section>
+
+<!-- ===== TRAINING LOOP ===== -->
+<section id="training">
+  <h2>Training Loop (Custom, ~40 lines)</h2>
+  <p class="section-desc">We use a custom training loop, NOT HF Trainer. Decision rationale is in the table below. P1 owns <code>examples/sft_qwen3_lora.py</code> and <code>examples/sft_gemma_lora.py</code> on Day 2.</p>
+
+  <table class="matrix">
+    <thead>
+      <tr>
+        <th>Approach</th>
+        <th>Pros</th>
+        <th>Cons</th>
+        <th>Decision</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>HF Trainer</strong></td>
+        <td>5 lines of config. Handles mixed precision, scheduler, logging, gradient accumulation. Same code path as V1 ships.</td>
+        <td>Opaque when things break. Silently skips NaN steps. Errors come from 6+ frames deep in <code>accelerate</code>. Forces Dataset/DataCollator conventions.</td>
+        <td style="color: #ef4444;">Rejected</td>
+      </tr>
+      <tr>
+        <td><strong>Custom loop</strong></td>
+        <td>Total transparency. NaN explodes immediately. Trivial to bisect kernel bugs by toggling <code>kernels=</code>. ~40 lines, top-to-bottom readable.</td>
+        <td>More boilerplate. Distributed-ready requires extra code (not needed for hackathon).</td>
+        <td style="color: var(--green);"><strong>Chosen</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Why custom for the hackathon:</strong> we WILL hit kernel correctness bugs during training. A black-box trainer makes those bugs harder to diagnose. The ~50 lines of training script are throwaway &mdash; the kernels (the valuable artifact) translate fully to V1's HF Trainer + FSDP2 path.</p>
+
+  <h3>The script (Qwen3 version &mdash; Gemma is a one-line model-id change)</h3>
+  <pre><span class="comment"># examples/sft_qwen3_lora.py</span>
+<span class="keyword">import</span> torch, forge
+<span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader
+<span class="keyword">from</span> transformers <span class="keyword">import</span> AutoModelForCausalLM, AutoTokenizer
+<span class="keyword">from</span> peft <span class="keyword">import</span> get_peft_model, LoraConfig
+<span class="keyword">from</span> datasets <span class="keyword">import</span> load_dataset
+
+torch.<span class="func">manual_seed</span>(42)
+
+<span class="comment"># 1. Load model (small for hackathon iteration speed)</span>
+model = AutoModelForCausalLM.<span class="func">from_pretrained</span>(
+    <span class="string">"Qwen/Qwen2.5-0.5B"</span>, torch_dtype=torch.bfloat16,
+).<span class="func">cuda</span>()
+tokenizer = AutoTokenizer.<span class="func">from_pretrained</span>(<span class="string">"Qwen/Qwen2.5-0.5B"</span>)
+tokenizer.pad_token = tokenizer.eos_token
+
+<span class="comment"># 2. <span class="highlight">forge.patch BEFORE LoRA &mdash; this ordering is critical</span></span>
+forge.<span class="func">patch</span>(model)                                <span class="comment"># enable all available kernels</span>
+<span class="comment"># For debugging, narrow scope: forge.patch(model, kernels=["rmsnorm"])</span>
+
+<span class="comment"># 3. LoRA wrap (after patch &mdash; PEFT's adapter wrappers go OUTSIDE our patched forwards)</span>
+peft_config = <span class="func">LoraConfig</span>(
+    r=16, lora_alpha=32,
+    target_modules=[<span class="string">"q_proj"</span>, <span class="string">"k_proj"</span>, <span class="string">"v_proj"</span>, <span class="string">"o_proj"</span>,
+                    <span class="string">"gate_proj"</span>, <span class="string">"up_proj"</span>, <span class="string">"down_proj"</span>],
+    task_type=<span class="string">"CAUSAL_LM"</span>,
+)
+model = <span class="func">get_peft_model</span>(model, peft_config)
+
+<span class="comment"># 4. Tiny dataset slice (smollm-corpus, pre-cached Friday night)</span>
+ds = <span class="func">load_dataset</span>(<span class="string">"HuggingFaceTB/smollm-corpus"</span>, <span class="string">"cosmopedia-v2"</span>, split=<span class="string">"train[:2000]"</span>)
+<span class="keyword">def</span> <span class="func">tok</span>(ex):
+    out = <span class="func">tokenizer</span>(ex[<span class="string">"text"</span>], truncation=<span class="keyword">True</span>, max_length=512, padding=<span class="string">"max_length"</span>)
+    out[<span class="string">"labels"</span>] = out[<span class="string">"input_ids"</span>].<span class="func">copy</span>()
+    <span class="keyword">return</span> out
+ds = ds.<span class="func">map</span>(tok, batched=<span class="keyword">True</span>, remove_columns=ds.column_names)
+ds.<span class="func">set_format</span>(<span class="string">"torch"</span>)
+loader = <span class="func">DataLoader</span>(ds, batch_size=4, shuffle=<span class="keyword">True</span>)
+
+<span class="comment"># 5. The loop &mdash; 500 steps</span>
+optim = torch.optim.<span class="func">AdamW</span>([p <span class="keyword">for</span> p <span class="keyword">in</span> model.<span class="func">parameters</span>() <span class="keyword">if</span> p.requires_grad], lr=2e-4)
+model.<span class="func">train</span>()
+losses = []
+<span class="keyword">for</span> step, batch <span class="keyword">in</span> <span class="func">enumerate</span>(loader):
+    <span class="keyword">if</span> step &gt;= 500: <span class="keyword">break</span>
+    batch = {k: v.<span class="func">cuda</span>() <span class="keyword">for</span> k, v <span class="keyword">in</span> batch.<span class="func">items</span>()}
+    out = <span class="func">model</span>(**batch)
+    out.loss.<span class="func">backward</span>()
+    optim.<span class="func">step</span>()
+    optim.<span class="func">zero_grad</span>()
+    losses.<span class="func">append</span>(out.loss.<span class="func">item</span>())
+    <span class="keyword">if</span> step % 10 == 0:
+        <span class="func">print</span>(<span class="func">f</span><span class="string">"step {step}: loss {out.loss.item():.4f}"</span>)
+    <span class="keyword">assert not</span> torch.<span class="func">isnan</span>(out.loss), <span class="func">f</span><span class="string">"NaN at step {step}"</span>   <span class="comment"># fail loud, fail fast</span>
+
+<span class="comment"># 6. Success criterion</span>
+<span class="keyword">assert</span> losses[-1] &lt; losses[0] * 0.9, <span class="func">f</span><span class="string">"Loss didn't decrease 10%: {losses[0]:.3f} -&gt; {losses[-1]:.3f}"</span>
+<span class="func">print</span>(<span class="string">"&#9989; Demo passed"</span>)</pre>
+
+  <div class="exit-criteria">
+    <div class="ec-label">Done When (per model)</div>
+    <ul>
+      <li>Script runs for 500 steps without NaN, without crash</li>
+      <li>Final loss &lt; 90% of initial loss</li>
+      <li>Wall-clock under 10 minutes on a single H100</li>
+      <li>Script with <code>forge.patch(model)</code> removed (vanilla baseline) also runs successfully &mdash; this confirms our changes vs the baseline</li>
+    </ul>
+  </div>
+
+  <div class="approach-box">
+    <div class="approach-label">Locked Decisions on Training</div>
+    <ul>
+      <li><strong>Custom loop, not HF Trainer.</strong> Debuggability over convenience for the hackathon.</li>
+      <li><strong>Dataset: <code>HuggingFaceTB/smollm-corpus</code></strong> (cosmopedia-v2 split, first 2000 rows). Pre-download in Friday checklist. Synthetic random tokens rejected &mdash; real text catches more bugs (padding, attention masks, etc).</li>
+      <li><strong>500 steps</strong>, not 200. Worth the extra ~7 minutes for a credible loss curve.</li>
+      <li><strong>Critical ordering: <code>forge.patch(model)</code> MUST happen BEFORE <code>get_peft_model</code>.</strong> PEFT wraps base modules in adapter layers &mdash; if we patch after, our patched forwards never fire.</li>
+      <li><strong>Filter optimizer params:</strong> <code>[p for p in model.parameters() if p.requires_grad]</code>. PEFT marks LoRA params trainable and base params frozen &mdash; we want AdamW only on LoRA.</li>
+      <li><strong>Fail loud:</strong> <code>assert not torch.isnan(loss)</code> at every step. Unlike Trainer, we do NOT silently skip NaN steps.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===== INTEGRATION TESTS ===== -->
+<section id="integration">
+  <h2>Integration Tests</h2>
+  <p class="section-desc">Two tests per model. P2 owns these on Day 2. These are the receipts that <code>forge.patch</code> doesn't silently corrupt the model.</p>
+
+  <h3>Test 1 &mdash; Single-step correctness</h3>
+  <pre><span class="comment"># tests/test_integration_qwen3.py</span>
+<span class="keyword">def</span> <span class="func">test_patched_vs_unpatched_logits</span>():
+    <span class="string">"""Patched model should produce numerically equivalent logits to unpatched."""</span>
+    m_ref   = <span class="func">load_qwen3</span>()
+    m_forge = <span class="func">load_qwen3</span>(); forge.<span class="func">patch</span>(m_forge)
+
+    torch.<span class="func">manual_seed</span>(42)
+    x = torch.<span class="func">randint</span>(0, 151936, (1, 128), device=<span class="string">'cuda'</span>)
+    out_ref   = <span class="func">m_ref</span>(x).logits
+    out_forge = <span class="func">m_forge</span>(x).logits
+
+    max_diff   = (out_ref - out_forge).<span class="func">abs</span>().<span class="func">max</span>().<span class="func">item</span>()
+    cos_sim    = F.<span class="func">cosine_similarity</span>(out_ref.<span class="func">flatten</span>(), out_forge.<span class="func">flatten</span>(), dim=0).<span class="func">item</span>()
+    top1_match = (out_ref.<span class="func">argmax</span>(-1) == out_forge.<span class="func">argmax</span>(-1)).<span class="func">float</span>().<span class="func">mean</span>().<span class="func">item</span>()
+
+    <span class="keyword">assert</span> max_diff &lt; 1.0,    <span class="func">f</span><span class="string">"Max logit diff {max_diff} too high"</span>
+    <span class="keyword">assert</span> cos_sim &gt; 0.999,   <span class="func">f</span><span class="string">"Cosine sim {cos_sim} too low"</span>
+    <span class="keyword">assert</span> top1_match &gt; 0.95, <span class="func">f</span><span class="string">"Top-1 agreement {top1_match} too low"</span></pre>
+
+  <h3>Test 2 &mdash; Convergence (100 steps, optional)</h3>
+  <pre><span class="comment"># tests/test_convergence_qwen3.py  (drop to single-step if behind schedule)</span>
+<span class="keyword">def</span> <span class="func">test_loss_curves_match</span>():
+    <span class="string">"""Patched and unpatched training produce similar loss curves over 100 steps."""</span>
+    losses_ref   = <span class="func">train_loop</span>(forge_patch=<span class="keyword">False</span>, steps=100, seed=42)
+    losses_forge = <span class="func">train_loop</span>(forge_patch=<span class="keyword">True</span>,  steps=100, seed=42)
+
+    <span class="keyword">for</span> i, (l_ref, l_forge) <span class="keyword">in</span> <span class="func">enumerate</span>(<span class="func">zip</span>(losses_ref, losses_forge)):
+        diff_pct = <span class="func">abs</span>(l_ref - l_forge) / l_ref
+        <span class="keyword">assert</span> diff_pct &lt; 0.10, <span class="func">f</span><span class="string">"Step {i}: loss diverged by {diff_pct:.1%}"</span></pre>
+
+  <table class="matrix">
+    <thead>
+      <tr>
+        <th>Tolerance</th>
+        <th>Starting value</th>
+        <th>Why this number</th>
+        <th>What to do if it fails</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>max_diff &lt; 1.0</code> (logits)</td>
+        <td>1.0</td>
+        <td>Logits are unbounded; raw absolute diff is noisy in bf16. 1.0 is loose but catches catastrophic kernel bugs.</td>
+        <td>Bisect kernels with <code>forge.patch(model, kernels=[one])</code>. Tighten threshold as you isolate.</td>
+      </tr>
+      <tr>
+        <td><code>cos_sim &gt; 0.999</code></td>
+        <td>0.999</td>
+        <td>Direction-of-logit-vector matters more than magnitude for next-token prediction.</td>
+        <td>If 0.99 &lt; sim &lt; 0.999: kernel has minor numerical drift, acceptable. If &lt; 0.99: real bug.</td>
+      </tr>
+      <tr>
+        <td><code>top1_match &gt; 0.95</code></td>
+        <td>0.95</td>
+        <td>The end-user-visible metric. 95% agreement means the model picks the same top token 95% of positions.</td>
+        <td>If &lt; 0.95: a kernel is changing the argmax. Bisect.</td>
+      </tr>
+      <tr>
+        <td><code>diff_pct &lt; 10%</code> (loss)</td>
+        <td>10% per step</td>
+        <td>Loss curves accumulate divergence; 10% per step is forgiving but flags drift.</td>
+        <td>If &gt; 10% by step 20: gradient bug in some kernel.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p><strong>These tolerances are starting points.</strong> Real numbers from running the test will tell us where to tighten. The bar in <code>rules.txt</code> is "no measurable accuracy loss" &mdash; we'll align tolerances with that bar based on what we actually observe.</p>
+</section>
+
+<!-- ===== DECISION LOG ===== -->
+<section id="decisions">
+  <h2>Decision Log &mdash; The 12 Locked Decisions</h2>
+  <p class="section-desc">The full list of design decisions discussed and locked in pre-hackathon. Linked back to the section that explains the rationale.</p>
+
+  <table class="matrix">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Decision</th>
+        <th>Choice</th>
+        <th>Where it lives</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Q1</td>
+        <td>Dynamic kernel registry?</td>
+        <td><strong>Skip.</strong> Explicit imports. Mapping files are the de-facto registry.</td>
+        <td><a href="#repo">Repo Layout</a></td>
+      </tr>
+      <tr>
+        <td>Q2</td>
+        <td>Package directory location?</td>
+        <td><strong><code>./forge/</code></strong>, not <code>./src/forge/</code>.</td>
+        <td><a href="#repo">Repo Layout</a></td>
+      </tr>
+      <tr>
+        <td>Q3</td>
+        <td>Patching strategy?</td>
+        <td><strong>Forward replacement</strong> (monkey-patch <code>module.forward</code>).</td>
+        <td><a href="#patching-design">Patching Architecture</a></td>
+      </tr>
+      <tr>
+        <td>Q4</td>
+        <td>Selective patching <code>kernels=[...]</code> support?</td>
+        <td><strong>Yes.</strong> Critical debugging tool.</td>
+        <td><a href="#patching-design">Patching Architecture</a></td>
+      </tr>
+      <tr>
+        <td>Q5</td>
+        <td>Double-patch behavior?</td>
+        <td><strong>Raise RuntimeError.</strong> Fail loud.</td>
+        <td><a href="#patching-design">Patching Architecture</a></td>
+      </tr>
+      <tr>
+        <td>Q6</td>
+        <td>Day 2 patch scope?</td>
+        <td><strong>Smoke test prerequisites &gt; Qwen3 must-ship (RMSNorm/SwiGLU/Embedding) &gt; Gemma &gt; Training E2E &gt; RoPE/CE/LoRA-fused.</strong> Slip from the bottom.</td>
+        <td><a href="#scope">Scope Priority Ladder</a></td>
+      </tr>
+      <tr>
+        <td>Q7</td>
+        <td>Patch whole MLP or just activation?</td>
+        <td><strong>Whole MLP.</strong> Cleaner, matches Liger/Unsloth.</td>
+        <td><a href="#qwen3-map">Qwen3 Patch Mapping</a></td>
+      </tr>
+      <tr>
+        <td>Q8</td>
+        <td>Gemma target model?</td>
+        <td><strong><code>google/gemma-2-2b</code>.</strong></td>
+        <td><a href="#gemma-map">Gemma Patch Mapping</a></td>
+      </tr>
+      <tr>
+        <td>Q9</td>
+        <td>HF Trainer or custom loop?</td>
+        <td><strong>Custom loop.</strong> Debuggability over convenience.</td>
+        <td><a href="#training">Training Loop</a></td>
+      </tr>
+      <tr>
+        <td>Q10</td>
+        <td>Dataset choice?</td>
+        <td><strong><code>HuggingFaceTB/smollm-corpus</code></strong> (cosmopedia-v2, first 2000 rows). Not synthetic.</td>
+        <td><a href="#training">Training Loop</a></td>
+      </tr>
+      <tr>
+        <td>Q11</td>
+        <td>Training step count?</td>
+        <td><strong>500 steps.</strong> ~10 min on H100.</td>
+        <td><a href="#training">Training Loop</a></td>
+      </tr>
+      <tr>
+        <td>Q12</td>
+        <td>Integration test tolerances?</td>
+        <td><strong>max_diff&lt;1.0, cos_sim&gt;0.999, top1&gt;0.95, loss_diff&lt;10%.</strong> Adjust based on observed numbers.</td>
+        <td><a href="#integration">Integration Tests</a></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>
+  Forge Hackathon &middot; May 23&ndash;24, 2026 &middot; Design Details &middot; The source of truth for "how exactly?"
+</footer>
+
+</main>
+</div>
+
+<!-- Scroll spy -->
+<script>
+(function() {
+  const path = window.location.pathname.split('/').pop() || 'index.html';
+  const current = path === '' ? 'index.html' : path;
+
+  // Auto-expand the sidebar group matching the current page; collapse others
+  document.querySelectorAll('.sidebar-group').forEach(g => {
+    if (g.dataset.page === current) {
+      g.setAttribute('open', '');
+      g.classList.add('current-group');
+    } else {
+      g.removeAttribute('open');
+    }
+  });
+  const links = document.querySelectorAll('.sidebar nav a');
+  const sections = [];
+  links.forEach(a => {
+    const href = a.getAttribute('href') || '';
+    const onThisPage = href.startsWith('#') || href.startsWith(current);
+    if (onThisPage) {
+      a.classList.add('current-page');
+      const id = href.split('#')[1];
+      if (id) {
+        const el = document.getElementById(id);
+        if (el) sections.push({ el, link: a });
+      }
+    }
+  });
+
+  function onScroll() {
+    let active = null;
+    const y = window.scrollY + 120;
+    for (let i = sections.length - 1; i >= 0; i--) {
+      if (sections[i].el.offsetTop <= y) { active = sections[i]; break; }
+    }
+    document.querySelectorAll('.sidebar nav a.active').forEach(l => l.classList.remove('active'));
+    if (active) active.link.classList.add('active');
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+</script>
+</body>
+</html>

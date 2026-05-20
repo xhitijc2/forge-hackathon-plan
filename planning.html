@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forge Hackathon &mdash; Planning &middot; Dependencies, Risks &amp; Stretch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="layout">
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar">
+  <a class="sidebar-brand-link" href="index.html">
+    <div class="sidebar-brand"><span class="fire">Forge</span> Hackathon</div>
+    <div class="sidebar-date">May 23 &ndash; 24, 2026</div>
+  </a>
+  <div class="sidebar-note">Sections marked with <span class="important-marker">*</span> are important.</div>
+
+
+  <details class="sidebar-group" data-page="index.html">
+  <summary class="sidebar-section"><a href="index.html" class="sidebar-group-title important" onclick="event.stopPropagation()">Overview</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="index.html#target">Target &amp; Demo</a>
+    <a href="index.html#schedule">Schedule</a>
+    <a href="index.html#assignments">Team Assignments</a>
+    <a href="index.html#prep">Pre-Hackathon Checklist</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="day1.html">
+  <summary class="sidebar-section"><a href="day1.html" class="sidebar-group-title important" onclick="event.stopPropagation()">Day 1 &mdash; 8 Parallel Tracks</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="day1.html#d1-t1">H1 &middot; SwiGLU kernel</a>
+    <a href="day1.html#d1-t2">H2 &middot; RoPE kernel</a>
+    <a href="day1.html#d1-t3">H3 &middot; Cross-Entropy kernel</a>
+    <a href="day1.html#d1-t4">H4 &middot; LoRA MLP fused</a>
+    <a href="day1.html#d1-t5">H5 &middot; LoRA QKV fused</a>
+    <a href="day1.html#d1-t6">H6 &middot; GeGLU kernel</a>
+    <a href="day1.html#d1-t7">H7 &middot; Package scaffold + porting</a>
+    <a href="day1.html#d1-t8">H8 &middot; Patching infra + FSDP2</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="day2.html">
+  <summary class="sidebar-section"><a href="day2.html" class="sidebar-group-title important" onclick="event.stopPropagation()">Day 2 &mdash; Integration Sprint</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="day2.html#d2-t1">H9 &middot; Port Day 1 kernels</a>
+    <a href="day2.html#d2-t2">H10 &middot; forge.patch (Qwen3)</a>
+    <a href="day2.html#d2-t3">H11 &middot; forge.patch (Gemma)</a>
+    <a href="day2.html#d2-t4">H12 &middot; Training pipeline</a>
+    <a href="day2.html#d2-t5">H13 &middot; Test suite + integration</a>
+    <a href="day2.html#d2-t6">H14 &middot; Benchmarks + docs</a>
+    <a href="day2.html#d2-t7">H15 &middot; FSDP2 smoke test</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="smoketest.html">
+  <summary class="sidebar-section"><a href="smoketest.html" class="sidebar-group-title" onclick="event.stopPropagation()">Smoke Test</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="smoketest.html#smoketest">FSDP2 Smoke Test (H15)</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="practices.html">
+  <summary class="sidebar-section"><a href="practices.html" class="sidebar-group-title important" onclick="event.stopPropagation()">Engineering Practices</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="practices.html#good-practices">Good Practices (Build Workflow)</a>
+    <a href="practices.html#ai-tips">Tips for Using AI</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="details.html">
+  <summary class="sidebar-section"><a href="details.html" class="sidebar-group-title" onclick="event.stopPropagation()">Design Details</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="details.html#scope">Scope Priority Ladder</a>
+    <a href="details.html#repo">Repo + Package Layout</a>
+    <a href="details.html#patching-design">Patching Architecture</a>
+    <a href="details.html#qwen3-map">Qwen3 Patch Mapping</a>
+    <a href="details.html#gemma-map">Gemma Patch Mapping</a>
+    <a href="details.html#training">Training Loop (Custom)</a>
+    <a href="details.html#integration">Integration Tests</a>
+    <a href="details.html#decisions">Decision Log (12)</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="planning.html">
+  <summary class="sidebar-section"><a href="planning.html" class="sidebar-group-title" onclick="event.stopPropagation()">Planning</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="planning.html#deps">Dependencies</a>
+    <a href="planning.html#risks">Risks &amp; Contingency</a>
+    <a href="planning.html#stretch">Stretch Goals</a>
+  </nav>
+  </details>
+
+  <div class="sidebar-stats">
+    <div class="stat-row">
+      <span class="stat-label">Tasks</span>
+      <span class="stat-value">15 core + 2 stretch</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">People</span>
+      <span class="stat-value">8</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Hours</span>
+      <span class="stat-value">~13 hrs</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Kernels</span>
+      <span class="stat-value">9 (Qwen3 + Gemma)</span>
+    </div>
+  </div>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<main>
+
+<a class="back-link" href="index.html"><span class="arrow">&larr;</span> Back to overview</a>
+
+<div class="page-header">
+  <h1>Planning &mdash; Dependencies, Risks &amp; Stretch</h1>
+  <p>The "what could go wrong / what if we have extra time" reference. Day 1 / Day 2 dependency map, nine risks with mitigations, two stretch goals if both demos ship and FSDP2 passes before 4:30pm.</p>
+</div>
+
+<!-- ===== DEPENDENCIES ===== -->
+<section id="deps">
+  <h2>Dependency Map</h2>
+  <p class="section-desc">Day 1 runs 8 tracks with one soft dependency: H6 (GeGLU) needs H1's (SwiGLU) kernel skeleton before adding the GELU path. Everything else is fully parallel. Day 2 has a short critical path: H9 (port kernels) unblocks H10/H11 (patching) which unblocks H12 (training). But the bottleneck is ~2 hours, not 2.5+ &mdash; because the scaffold was built on Day 1.</p>
+
+  <div class="dep-box"><span class="dep-purple">DAY 1 &mdash; 8 TRACKS (one soft dependency: H6 needs H1's kernel skeleton)</span>
+
+  <span class="dep-highlight">H1</span> SwiGLU (SiLU path) ──────┬───────────────┐
+                             <span class="dep-arrow">│ shared kernel</span> │
+  <span class="dep-highlight">H6</span> GeGLU (GELU path) ───────┘               │
+  <span class="dep-highlight">H2</span> RoPE ────────────────────────────────────┤
+  <span class="dep-highlight">H3</span> Cross-Entropy ───────────────────────────┤<span class="dep-arrow">───&gt;</span> All kernels ready
+  <span class="dep-highlight">H4</span> LoRA MLP ────────────────────────────────┤
+  <span class="dep-highlight">H5</span> LoRA QKV ────────────────────────────────┘
+  <span class="dep-highlight">H7</span> Package scaffold + port existing 4 kernels <span class="dep-arrow">───&gt;</span> forge/ installable with 4+ kernels
+  <span class="dep-highlight">H8</span> Patching infra + Gemma params + FSDP2 <span class="dep-arrow">───&gt;</span> patch.py, qwen3.py, gemma.py code-complete
+
+<span class="dep-green">DAY 2 &mdash; FAST START (scaffold + patching infra already built)</span>
+
+  <span class="dep-highlight">H9</span>  Port Day 1 kernels (~2 hrs)
+       <span class="dep-arrow">│</span>
+       <span class="dep-arrow">├───&gt;</span> <span class="dep-highlight">H10</span> forge.patch (Qwen3) <span class="dep-arrow">──┐</span>
+       <span class="dep-arrow">│</span>                              <span class="dep-arrow">├──&gt;</span> <span class="dep-highlight">H12</span> Training (Qwen3 + Gemma) <span class="dep-arrow">──&gt;</span> <span class="dep-green">CP-H6: DEMO &#127942;</span>
+       <span class="dep-arrow">├───&gt;</span> <span class="dep-highlight">H11</span> forge.patch (Gemma) <span class="dep-arrow">──┘</span>                                  <span class="dep-green">(Both models)</span>
+       <span class="dep-arrow">│</span>
+       <span class="dep-arrow">├───&gt;</span> <span class="dep-highlight">H13</span> Test suite + integration (both models)
+       <span class="dep-arrow">│</span>
+       <span class="dep-arrow">└───&gt;</span> <span class="dep-highlight">H14</span> Benchmarks (both models)
+
+  <span class="dep-highlight">H15</span> FSDP2 smoke test (independent &mdash; runs on separate 2-GPU node) <span class="dep-arrow">──&gt;</span> <span class="dep-green">CP-H7: FSDP2 &#9889;</span>
+
+<span class="dep-blue">STRETCH (after demos)</span>
+
+  <span class="dep-highlight">S1</span> 500-step convergence test (patched vs unpatched loss curves, both models)
+  <span class="dep-highlight">S2</span> torch.compile compatibility check</div>
+</section>
+
+<!-- ===== RISKS ===== -->
+<section id="risks">
+  <h2>Risks &amp; Contingency</h2>
+
+  <div class="risk-card">
+    <div class="risk-header">
+      <span class="risk-level high">High</span>
+      <span class="risk-title">LoRA QKV fused kernel (H5) takes longer than a day</span>
+    </div>
+    <p class="risk-body">GQA asymmetry gives this kernel the most moving parts. May not complete forward+backward+tests in one day.</p>
+    <p class="risk-mitigation">&#10003; Mitigation: Ship the "three separate pre-merged matmuls" version by 4pm. It's still a win (3 merged vs 6 unfused). Fuse into single matmul post-hackathon.</p>
+  </div>
+
+  <div class="risk-card">
+    <div class="risk-header">
+      <span class="risk-level medium">Medium</span>
+      <span class="risk-title">P1/P6 shared kernel coordination causes merge conflicts or blocking</span>
+    </div>
+    <p class="risk-body">P1 (SiLU) and P6 (GELU) work on the same kernel file. If P1 is behind schedule, P6 is blocked. If they don't agree on the interface, they waste time refactoring.</p>
+    <p class="risk-mitigation">&#10003; Mitigation: Lock the interface at 10:30am (parameter name, constexpr branch point, autograd.Function skeleton). P6 writes tests first while waiting for P1's skeleton. If P1 is behind by 13:00, P6 helps P1 finish the shared structure before starting GELU.</p>
+  </div>
+
+  <div class="risk-card">
+    <div class="risk-header">
+      <span class="risk-level high">High</span>
+      <span class="risk-title">forge.patch(model) breaks with LoRA composition</span>
+    </div>
+    <p class="risk-body">Patching + LoRA together may produce unexpected behavior (wrong module wrapping order, missing gradients, forward hook conflicts).</p>
+    <p class="risk-mitigation">&#10003; Mitigation: Test patch-only first (no LoRA). Then add LoRA. If composition fails, demo with patch-only forward pass. Debug composition post-hackathon.</p>
+  </div>
+
+  <div class="risk-card">
+    <div class="risk-header">
+      <span class="risk-level medium">Medium</span>
+      <span class="risk-title">A backward kernel has a numerical bug that only shows during training</span>
+    </div>
+    <p class="risk-body">Kernel passes gradcheck at float64 but produces NaN at bf16 during actual training (different scale).</p>
+    <p class="risk-mitigation">&#10003; Mitigation: Training script (H12) uses <code>forge.patch(model, kernels=["rmsnorm"])</code> to enable one kernel at a time. Isolate the offending kernel in &lt;30 min. Disable it for the demo and fix post-hackathon.</p>
+  </div>
+
+  <div class="risk-card">
+    <div class="risk-header">
+      <span class="risk-level medium">Medium</span>
+      <span class="risk-title">Day 1 infra (H7/H8) is untested with new kernels</span>
+    </div>
+    <p class="risk-body">Package scaffold and patching infra are built on Day 1 against existing kernels. New Day 1 kernels may have different interfaces or import patterns that break the integration on Day 2.</p>
+    <p class="risk-mitigation">&#10003; Mitigation: P7 integrates any early-finishing Day 1 kernels (H4 LoRA MLP likely finishes first) to catch interface issues on Day 1 itself. Kernel writers follow the existing RMSNorm pattern, minimizing surprises.</p>
+  </div>
+
+  <div class="risk-card">
+    <div class="risk-header">
+      <span class="risk-level medium">Medium</span>
+      <span class="risk-title">Gemma architecture has unexpected module differences</span>
+    </div>
+    <p class="risk-body">Gemma's HF implementation may name modules differently or have subtle architectural differences beyond RMSNorm offset / GeGLU / RoPE base.</p>
+    <p class="risk-mitigation">&#10003; Mitigation: P6 traces Gemma modules on Day 1 (before patching starts) and shares with P8. If major differences are found, scope Gemma patching to the kernels that map cleanly.</p>
+  </div>
+
+  <div class="risk-card">
+    <div class="risk-header">
+      <span class="risk-level medium">Medium</span>
+      <span class="risk-title">Gemma training eats time that could stabilize Qwen3</span>
+    </div>
+    <p class="risk-body">Covering two models in 2 days is ambitious. Gemma debugging might steal hours from stabilizing the Qwen3 pipeline.</p>
+    <p class="risk-mitigation">&#10003; Mitigation: H11 (Gemma) and H10 (Qwen3) are assigned to different people (P6 and P8). If Gemma is behind at 3pm, P6 pivots to help with Qwen3 demo. Ship one model perfectly over two models buggily.</p>
+  </div>
+
+  <div class="risk-card">
+    <div class="risk-header">
+      <span class="risk-level medium">Medium</span>
+      <span class="risk-title">FSDP2 smoke test fails</span>
+    </div>
+    <p class="risk-body"><code>ctx.save_for_backward(weight)</code> may not work correctly when FSDP2 has sharded and discarded the full weight after forward.</p>
+    <p class="risk-mitigation">&#10003; Mitigation: A documented failure is still a win &mdash; it tells us exactly what pattern change is needed for Phase 3. P3 documents the failure mode and writes the fix recommendation. No time wasted guessing in Phase 3. See the <a href="smoketest.html#smoketest" style="color: var(--green);">smoke-test deep dive</a> for the full P8 playbook.</p>
+  </div>
+
+  <div class="risk-card">
+    <div class="risk-header">
+      <span class="risk-level low">Low</span>
+      <span class="risk-title">GPU provisioning delays</span>
+    </div>
+    <p class="risk-body">Cloud GPU instances take time to spin up. Time lost at start of Day 1.</p>
+    <p class="risk-mitigation">&#10003; Mitigation: Provision instances on Friday evening (May 22). Have environments ready with PyTorch, Triton, transformers pre-installed. Include one 2-GPU node for the FSDP2 smoke test.</p>
+  </div>
+</section>
+
+<!-- ===== STRETCH GOALS ===== -->
+<section id="stretch">
+  <h2>Stretch Goals</h2>
+  <p class="section-desc">If both demos work and FSDP2 passes by 4:30pm Sunday. These are bonus &mdash; don't sacrifice core targets for them.</p>
+
+  <div class="task-grid">
+
+    <div class="task-card stretch" id="stretch-s1">
+      <div class="task-header">
+        <span class="task-id">S1</span>
+        <span class="task-title">500-Step Convergence Test</span>
+        <div class="task-tags">
+          <span class="tag stretch-tag">Stretch</span>
+          <span class="tag time">~1-2 hrs</span>
+        </div>
+      </div>
+      <p class="task-desc">
+        Run 500 steps with patched model and 500 steps with unpatched model (same seed, same data) on both Qwen3 and Gemma.
+        Compare loss curves. This is the "0% accuracy loss" verification.
+      </p>
+      <div class="exit-criteria">
+        <div class="ec-label">Done When</div>
+        <ul>
+          <li>Loss curves plotted: patched vs unpatched over 500 steps (both models)</li>
+          <li>Max deviation within statistical noise at each checkpoint</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="task-card stretch" id="stretch-s2">
+      <div class="task-header">
+        <span class="task-id">S2</span>
+        <span class="task-title">torch.compile Compatibility Check</span>
+        <div class="task-tags">
+          <span class="tag stretch-tag">Stretch</span>
+          <span class="tag time">~30-60 min</span>
+        </div>
+      </div>
+      <p class="task-desc">
+        Quick test: does <code>torch.compile(model)</code> work after <code>forge.patch(model)</code>?
+        If yes, that's a free V1 feature. If no, document what breaks for post-hackathon fix.
+      </p>
+      <div class="exit-criteria">
+        <div class="ec-label">Done When</div>
+        <ul>
+          <li>Result documented: COMPATIBLE or INCOMPATIBLE with specific error</li>
+          <li>If compatible: forward + backward benchmarked with compile</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  Forge Hackathon &middot; May 23&ndash;24, 2026 &middot; Eight engineers. Two days. Nine kernels. Two models. FSDP2 smoke test. Ship it.
+</footer>
+
+</main>
+</div>
+
+<!-- Scroll spy -->
+<script>
+(function() {
+  const path = window.location.pathname.split('/').pop() || 'index.html';
+  const current = path === '' ? 'index.html' : path;
+
+  // Auto-expand the sidebar group matching the current page; collapse others
+  document.querySelectorAll('.sidebar-group').forEach(g => {
+    if (g.dataset.page === current) {
+      g.setAttribute('open', '');
+      g.classList.add('current-group');
+    } else {
+      g.removeAttribute('open');
+    }
+  });
+  const links = document.querySelectorAll('.sidebar nav a');
+  const sections = [];
+  links.forEach(a => {
+    const href = a.getAttribute('href') || '';
+    const onThisPage = href.startsWith('#') || href.startsWith(current);
+    if (onThisPage) {
+      a.classList.add('current-page');
+      const id = href.split('#')[1];
+      if (id) {
+        const el = document.getElementById(id);
+        if (el) sections.push({ el, link: a });
+      }
+    }
+  });
+
+  function onScroll() {
+    let active = null;
+    const y = window.scrollY + 120;
+    for (let i = sections.length - 1; i >= 0; i--) {
+      if (sections[i].el.offsetTop <= y) { active = sections[i]; break; }
+    }
+    document.querySelectorAll('.sidebar nav a.active').forEach(l => l.classList.remove('active'));
+    if (active) active.link.classList.add('active');
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+</script>
+</body>
+</html>

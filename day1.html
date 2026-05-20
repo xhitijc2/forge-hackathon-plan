@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forge Hackathon &mdash; Day 1 &middot; May 23, 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="layout">
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar">
+  <a class="sidebar-brand-link" href="index.html">
+    <div class="sidebar-brand"><span class="fire">Forge</span> Hackathon</div>
+    <div class="sidebar-date">May 23 &ndash; 24, 2026</div>
+  </a>
+  <div class="sidebar-note">Sections marked with <span class="important-marker">*</span> are important.</div>
+
+
+  <details class="sidebar-group" data-page="index.html">
+  <summary class="sidebar-section"><a href="index.html" class="sidebar-group-title important" onclick="event.stopPropagation()">Overview</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="index.html#target">Target &amp; Demo</a>
+    <a href="index.html#schedule">Schedule</a>
+    <a href="index.html#assignments">Team Assignments</a>
+    <a href="index.html#prep">Pre-Hackathon Checklist</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="day1.html">
+  <summary class="sidebar-section"><a href="day1.html" class="sidebar-group-title important" onclick="event.stopPropagation()">Day 1 &mdash; 8 Parallel Tracks</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="day1.html#d1-t1">H1 &middot; SwiGLU kernel</a>
+    <a href="day1.html#d1-t2">H2 &middot; RoPE kernel</a>
+    <a href="day1.html#d1-t3">H3 &middot; Cross-Entropy kernel</a>
+    <a href="day1.html#d1-t4">H4 &middot; LoRA MLP fused</a>
+    <a href="day1.html#d1-t5">H5 &middot; LoRA QKV fused</a>
+    <a href="day1.html#d1-t6">H6 &middot; GeGLU kernel</a>
+    <a href="day1.html#d1-t7">H7 &middot; Package scaffold + porting</a>
+    <a href="day1.html#d1-t8">H8 &middot; Patching infra + FSDP2</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="day2.html">
+  <summary class="sidebar-section"><a href="day2.html" class="sidebar-group-title important" onclick="event.stopPropagation()">Day 2 &mdash; Integration Sprint</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="day2.html#d2-t1">H9 &middot; Port Day 1 kernels</a>
+    <a href="day2.html#d2-t2">H10 &middot; forge.patch (Qwen3)</a>
+    <a href="day2.html#d2-t3">H11 &middot; forge.patch (Gemma)</a>
+    <a href="day2.html#d2-t4">H12 &middot; Training pipeline</a>
+    <a href="day2.html#d2-t5">H13 &middot; Test suite + integration</a>
+    <a href="day2.html#d2-t6">H14 &middot; Benchmarks + docs</a>
+    <a href="day2.html#d2-t7">H15 &middot; FSDP2 smoke test</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="smoketest.html">
+  <summary class="sidebar-section"><a href="smoketest.html" class="sidebar-group-title" onclick="event.stopPropagation()">Smoke Test</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="smoketest.html#smoketest">FSDP2 Smoke Test (H15)</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="practices.html">
+  <summary class="sidebar-section"><a href="practices.html" class="sidebar-group-title important" onclick="event.stopPropagation()">Engineering Practices</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="practices.html#good-practices">Good Practices (Build Workflow)</a>
+    <a href="practices.html#ai-tips">Tips for Using AI</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="details.html">
+  <summary class="sidebar-section"><a href="details.html" class="sidebar-group-title" onclick="event.stopPropagation()">Design Details</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="details.html#scope">Scope Priority Ladder</a>
+    <a href="details.html#repo">Repo + Package Layout</a>
+    <a href="details.html#patching-design">Patching Architecture</a>
+    <a href="details.html#qwen3-map">Qwen3 Patch Mapping</a>
+    <a href="details.html#gemma-map">Gemma Patch Mapping</a>
+    <a href="details.html#training">Training Loop (Custom)</a>
+    <a href="details.html#integration">Integration Tests</a>
+    <a href="details.html#decisions">Decision Log (12)</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="planning.html">
+  <summary class="sidebar-section"><a href="planning.html" class="sidebar-group-title" onclick="event.stopPropagation()">Planning</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="planning.html#deps">Dependencies</a>
+    <a href="planning.html#risks">Risks &amp; Contingency</a>
+    <a href="planning.html#stretch">Stretch Goals</a>
+  </nav>
+  </details>
+
+  <div class="sidebar-stats">
+    <div class="stat-row">
+      <span class="stat-label">Tasks</span>
+      <span class="stat-value">15 core + 2 stretch</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">People</span>
+      <span class="stat-value">8</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Hours</span>
+      <span class="stat-value">~13 hrs</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Kernels</span>
+      <span class="stat-value">9 (Qwen3 + Gemma)</span>
+    </div>
+  </div>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<main>
+
+<a class="back-link" href="index.html"><span class="arrow">&larr;</span> Back to overview</a>
+
+<div class="page-header">
+  <h1>Day 1 &mdash; Kernel + Infrastructure Sprint</h1>
+  <p>Saturday May 23 &middot; 10am&ndash;5:30pm. Eight people, eight parallel tracks. Five new kernels, GeGLU activation path, the forge package scaffold, and patching + FSDP2 research &mdash; all in one day.</p>
+</div>
+
+<!-- ===== DAY 1: KERNEL + INFRA SPRINT ===== -->
+<section id="day1">
+  <div class="day-header">
+    <span class="day-badge day1">Day 1</span>
+    <h3>Kernel + Infrastructure Sprint</h3>
+    <span class="day-time">Sat May 23 &middot; 10am&ndash;5:30pm</span>
+  </div>
+
+  <p class="section-desc">
+    Eight people, eight parallel tracks. P1-P5 write five new kernels, P6 builds the GeGLU activation path
+    on P1's shared kernel. P7 builds the forge package with existing kernels.
+    P8 writes the patching infrastructure, handles two trivial Gemma parameter changes (RMSNorm offset, RoPE base), and researches FSDP2.
+    P1 and P6 are the only pair with a dependency (shared kernel file) &mdash; everything else is fully independent.
+  </p>
+
+  <div class="task-grid">
+
+    <!-- H1: SwiGLU -->
+    <div class="task-card critical" id="d1-t1">
+      <div class="task-header">
+        <span class="task-id">H1</span>
+        <span class="task-title">SwiGLU Kernel (SiLU Activation Path)</span>
+        <div class="task-tags">
+          <span class="tag critical">Critical</span>
+          <span class="tag time">~5-6 hrs</span>
+        </div>
+      </div>
+      <p class="task-desc">
+        Fuse <code>SiLU(gate) * up</code> into one kernel &mdash; the <strong>SiLU activation path</strong> used by Qwen3. Eliminates 2 intermediate tensor writes to HBM per layer.
+        This is <strong>~50% of Qwen3 compute</strong> &mdash; the single highest-impact kernel.
+        P6 builds the GELU path (GeGLU for Gemma) on top of this same kernel file &mdash; <strong>coordinate with P6 at kickoff on the shared kernel interface</strong>.
+      </p>
+
+      <details class="task-steps" open>
+        <summary>Steps</summary>
+        <ol>
+          <li>Read <code>forge_learning/module_4_kernel_math/01_gradient_derivation_swiglu.md</code> &mdash; understand the product-rule backward</li>
+          <li>Read <code>forge_learning/module_5_kernel_implementation/01_swiglu_triton_kernel.md</code></li>
+          <li><strong>Coordinate with P6 at 10:30:</strong> agree on kernel interface &mdash; the <code>activation</code> parameter name, how it's passed to the Triton kernel (compile-time <code>tl.constexpr</code>), where the activation branch happens in fwd and bwd</li>
+          <li>Write <code>_swiglu_fwd_kernel</code>: load gate &amp; up chunks, compute <code>SiLU(gate) * up</code> in registers, write output</li>
+          <li>Test forward against <code>F.silu(gate) * up</code> &mdash; must match at bf16 within rtol=1e-5</li>
+          <li>Write <code>_swiglu_bwd_kernel</code>: <code>dgate = dY * up * sigmoid(gate) * (1 + gate*(1-sigmoid(gate)))</code>, <code>dup = dY * SiLU(gate)</code></li>
+          <li>Write <code>ForgeSwiGLUFunction(autograd.Function)</code> &mdash; save gate for backward, recompute sigmoid (Liger's approach)</li>
+          <li>Write <code>ForgeSwiGLU(nn.Module)</code> wrapper with <code>activation="silu"</code> as default parameter</li>
+          <li>Write <code>test_swiglu.py</code>: gradcheck (float64), forward correctness (bf16/fp16), backward correctness, shape sweep &mdash; all for SiLU path</li>
+          <li>Write <code>bench_swiglu.py</code> using <code>benchmarks/harness.py</code></li>
+        </ol>
+      </details>
+
+      <div class="approach-box">
+        <div class="approach-label">How to approach it</div>
+        <ul>
+          <li><strong>Forward first.</strong> Get <code>_swiglu_fwd_kernel</code> passing correctness before touching backward.</li>
+          <li><strong>Save gate, recompute sigmoid in backward</strong> (Liger's approach) &mdash; saves VRAM vs saving sigmoid directly.</li>
+          <li>Start with <code>BLOCK_SIZE=1024</code>, add <code>@triton.autotune</code> with the same 22-config set from RMSNorm.</li>
+          <li>Shape sweep must include Qwen3's <code>intermediate=11008</code>: test at <code>[4, 2048, 11008]</code>.</li>
+          <li><strong>Design the kernel with an <code>activation</code> branch point</strong> so P6 can add the GELU path without restructuring. Use a <code>tl.constexpr</code> parameter that selects SiLU vs GELU at compile time (zero overhead).</li>
+          <li>If you finish SiLU early, help P6 with the GELU backward derivative.</li>
+        </ul>
+      </div>
+
+      <div class="exit-criteria">
+        <div class="ec-label">Done When</div>
+        <ul>
+          <li><code>gradcheck</code> PASSES at float64 with shape <code>[2, 8, 4096]</code> (SiLU path)</li>
+          <li>Forward output matches <code>F.silu(gate) * up</code> within rtol=1e-5 at bf16 and fp16</li>
+          <li>Backward gradients match PyTorch autograd (SiLU derivative)</li>
+          <li>Benchmark shows <strong>&ge;1.0&times; PyTorch</strong> speed (hard floor), target <strong>&ge;1.3&times;</strong></li>
+          <li>Kernel interface has <code>activation</code> parameter ready for P6 to add the GELU path</li>
+        </ul>
+      </div>
+
+      <div class="assign-slot"><span class="person-icon">&#9679;</span> P1: SwiGLU SiLU path lead (coordinates with P6 on shared kernel file)</div>
+    </div>
+
+    <!-- H2: RoPE -->
+    <div class="task-card high" id="d1-t2">
+      <div class="task-header">
+        <span class="task-id">H2</span>
+        <span class="task-title">RoPE Kernel (Fused Q+K)</span>
+        <div class="task-tags">
+          <span class="tag high">High</span>
+          <span class="tag time">~4-5 hrs</span>
+        </div>
+      </div>
+      <p class="task-desc">
+        Apply rotary positional embeddings to Q and K jointly in one kernel launch. Backward is just inverse rotation (negate sin).
+        Unsloth fuses Q+K into one launch for ~2.3&times; speedup over separate application.
+      </p>
+
+      <details class="task-steps">
+        <summary>Steps</summary>
+        <ol>
+          <li>Read <code>forge_learning/module_4_kernel_math/02_gradient_derivation_rope.md</code></li>
+          <li>Read <code>forge_learning/module_5_kernel_implementation/02_rope_triton_kernel.md</code></li>
+          <li>Write <code>_rope_fwd_kernel</code> with 2D grid <code>(num_rows, 2)</code> &mdash; program 0 handles Q, program 1 handles K</li>
+          <li>Pre-compute cos/sin frequency tables: <code>freqs = 1.0 / (base ** (arange(0, dim, 2) / dim))</code></li>
+          <li>Write <code>ForgeRoPEFunction</code> &mdash; backward calls forward with negated sin</li>
+          <li>Write <code>ForgeRoPE(nn.Module)</code> with configurable <code>base</code> parameter</li>
+          <li>Write <code>test_rope.py</code>: gradcheck, correctness vs HF <code>apply_rotary_pos_emb</code></li>
+          <li>Write <code>bench_rope.py</code></li>
+        </ol>
+      </details>
+
+      <div class="approach-box">
+        <div class="approach-label">How to approach it</div>
+        <ul>
+          <li><strong>Unsloth is the reference</strong>, not Liger. Liger applies RoPE to Q and K separately (two launches). Unsloth fuses them.</li>
+          <li>Math: <code>x_rot = x * cos + rotate_half(x) * sin</code>. Backward = negate sin, same operation.</li>
+          <li>Head dimension: Qwen3 has head_dim=128. RoPE applies to first <code>rotary_dim</code> dimensions only &mdash; make configurable.</li>
+          <li>Make <code>base</code> a parameter (default 10000.0) &mdash; Gemma uses a different rotary base. Not a separate kernel.</li>
+          <li>Start by wrapping HF's existing RoPE in a test harness to get reference outputs.</li>
+        </ul>
+      </div>
+
+      <div class="exit-criteria">
+        <div class="ec-label">Done When</div>
+        <ul>
+          <li><code>gradcheck</code> PASSES at float64</li>
+          <li>Output matches HF <code>apply_rotary_pos_emb</code> within rtol=1e-5</li>
+          <li>Fused Q+K confirmed faster than separate application</li>
+          <li>cos/sin table precomputed once, not per-call</li>
+        </ul>
+      </div>
+
+      <div class="assign-slot"><span class="person-icon">&#9679;</span> P2: someone who studied Unsloth's RoPE</div>
+    </div>
+
+    <!-- H3: Cross-Entropy -->
+    <div class="task-card high" id="d1-t3">
+      <div class="task-header">
+        <span class="task-id">H3</span>
+        <span class="task-title">Cross-Entropy Standalone Kernel</span>
+        <div class="task-tags">
+          <span class="tag high">High</span>
+          <span class="tag time">~5-6 hrs</span>
+        </div>
+      </div>
+      <p class="task-desc">
+        Chunked cross-entropy loss over vocab dimension using online softmax. Avoids materializing the full
+        <code>[batch&times;seq, vocab=151936]</code> logit tensor. Primary win is <strong>memory</strong>, not speed.
+      </p>
+
+      <details class="task-steps">
+        <summary>Steps</summary>
+        <ol>
+          <li>Read <code>forge_learning/module_4_kernel_math/03_online_softmax_algorithm.md</code></li>
+          <li>Read <code>forge_learning/module_4_kernel_math/04_fused_cross_entropy_math.md</code></li>
+          <li>Study <code>chapter_fused_linear_ce.md</code> &mdash; extract the CE-only computation logic</li>
+          <li>Write <code>_ce_fwd_kernel</code>: process vocab in chunks, accumulate running max + sum-exp, compute loss</li>
+          <li>Write <code>_ce_bwd_kernel</code>: <code>dlogits = softmax(logits) - one_hot(target)</code></li>
+          <li>Write <code>ForgeCrossEntropyFunction</code> and <code>ForgeCrossEntropy</code> module</li>
+          <li>Add <code>label_smoothing</code> parameter</li>
+          <li>Write <code>test_ce.py</code>: gradcheck, correctness vs <code>F.cross_entropy</code></li>
+          <li>Write <code>bench_ce.py</code> &mdash; measure both speed AND memory</li>
+        </ol>
+      </details>
+
+      <div class="approach-box">
+        <div class="approach-label">How to approach it</div>
+        <ul>
+          <li><strong>You already have Fused Linear+CE done.</strong> The standalone CE reuses the CE computation logic but takes pre-computed logits. Extract from the existing kernel as a starting point.</li>
+          <li>Online softmax is the key: one pass, running max + running sum-exp. Well-documented in Module 4.</li>
+          <li>Chunk size: start with <code>CHUNK_SIZE=4096</code>. Process vocab in chunks, combine via log-sum-exp trick.</li>
+          <li><strong>fp32 accumulation is critical</strong> &mdash; all softmax reductions in fp32 even if inputs are bf16.</li>
+          <li>Memory target: <strong>&le;50% of F.cross_entropy</strong>. This is the primary win, not speed.</li>
+        </ul>
+      </div>
+
+      <div class="exit-criteria">
+        <div class="ec-label">Done When</div>
+        <ul>
+          <li><code>gradcheck</code> PASSES at float64</li>
+          <li>Loss matches <code>F.cross_entropy</code> within rtol=1e-5</li>
+          <li>Peak memory <strong>&le;50%</strong> of <code>F.cross_entropy</code> at vocab=151936</li>
+          <li>Label smoothing produces correct results</li>
+        </ul>
+      </div>
+
+      <div class="assign-slot"><span class="person-icon">&#9679;</span> P3: person who studied Fused Linear+CE</div>
+    </div>
+
+    <!-- H4: LoRA MLP -->
+    <div class="task-card structural" id="d1-t4">
+      <div class="task-header">
+        <span class="task-id">H4</span>
+        <span class="task-title">LoRA MLP Fused Kernel</span>
+        <div class="task-tags">
+          <span class="tag structural">Structural</span>
+          <span class="tag time">~4-5 hrs</span>
+        </div>
+      </div>
+      <p class="task-desc">
+        Pre-merge base weight W with LoRA <code>A@B</code>: compute <code>(W + A@B) @ x</code> as one matmul instead of two.
+        Backward computes dA and dB only (W is frozen). A structural optimization &mdash; 1 matmul vs 2.
+      </p>
+
+      <details class="task-steps">
+        <summary>Steps</summary>
+        <ol>
+          <li>Read <code>forge_learning/module_4_kernel_math/05_lora_matmul_optimization.md</code></li>
+          <li>Read <code>forge_learning/module_5_kernel_implementation/04_lora_fused_kernels.md</code></li>
+          <li>Write weight-merging: <code>W_merged = W + A @ B</code> where A is <code>[hidden, rank]</code>, B is <code>[rank, intermediate]</code></li>
+          <li>Write <code>ForgeLoRAMLPFunction(autograd.Function)</code>: forward uses <code>F.linear(x, W_merged)</code>; backward computes dA, dB</li>
+          <li>Write <code>ForgeLoRAMLP(nn.Module)</code> wrapper</li>
+          <li>Write <code>test_lora_mlp.py</code>: output matches <code>(W + A@B) @ x</code>, gradcheck on A and B, verify W has no gradient</li>
+          <li>Write <code>bench_lora_mlp.py</code></li>
+        </ol>
+      </details>
+
+      <div class="approach-box">
+        <div class="approach-label">How to approach it</div>
+        <ul>
+          <li><strong>Start simple:</strong> this is NOT a Triton kernel initially. Pre-merge weights, call one <code>F.linear</code>. That alone halves matmul count.</li>
+          <li>LoRA rank is typically 16-64. A is <code>[4096, 16]</code>, B is <code>[16, 11008]</code>. Merge <code>A@B</code> is one-time cost per step.</li>
+          <li>Three projections in Qwen3 MLP: gate_proj, up_proj, down_proj. Each gets its own LoRA adapter.</li>
+          <li>Verify: <code>W.requires_grad</code> must be <code>False</code>. Only A and B get gradients.</li>
+          <li>If the merge itself is expensive, fuse it into a Triton matmul later &mdash; but start with pure torch.</li>
+        </ul>
+      </div>
+
+      <div class="exit-criteria">
+        <div class="ec-label">Done When</div>
+        <ul>
+          <li>Output matches <code>(W + A@B) @ x</code> exactly</li>
+          <li><code>gradcheck</code> on A and B PASSES; W has no gradient</li>
+          <li>Measurably faster than unfused (<code>W@x + A@(B@x)</code>)</li>
+        </ul>
+      </div>
+
+      <div class="assign-slot"><span class="person-icon">&#9679;</span> P4: someone comfortable with LoRA internals</div>
+    </div>
+
+    <!-- H5: LoRA QKV -->
+    <div class="task-card structural" id="d1-t5">
+      <div class="task-header">
+        <span class="task-id">H5</span>
+        <span class="task-title">LoRA QKV Fused Kernel</span>
+        <div class="task-tags">
+          <span class="tag structural">Structural</span>
+          <span class="tag time">~6-7 hrs</span>
+        </div>
+      </div>
+      <p class="task-desc">
+        Same as LoRA MLP but for attention projections, handling GQA asymmetry: Q is <code>[4096, 4096]</code> (32 heads),
+        K/V are <code>[4096, 512]</code> (4 heads each). One fused operation for all three projections.
+        <strong>Most complex kernel &mdash; may spill into Day 2.</strong>
+      </p>
+
+      <details class="task-steps">
+        <summary>Steps</summary>
+        <ol>
+          <li>Read <code>forge_learning/module_5_kernel_implementation/04_lora_fused_kernels.md</code> &mdash; QKV section</li>
+          <li>Concatenate W_q, W_k, W_v &rarr; one matrix <code>[4096, 5120]</code> (4096+512+512)</li>
+          <li>Merge LoRA: <code>W_merged = concat(W_q + Aq@Bq, W_k + Ak@Bk, W_v + Av@Bv)</code></li>
+          <li>Forward: one matmul <code>F.linear(x, W_merged)</code>, split output into Q, K, V</li>
+          <li>Write <code>ForgeLoRAQKVFunction</code> &mdash; backward computes dA, dB for each of Q, K, V adapters</li>
+          <li>Write tests: verify Q shape <code>[batch, seq, 32, 128]</code>, K/V shape <code>[batch, seq, 4, 128]</code></li>
+          <li>Verify gradients flow to correct LoRA adapters (not cross-contaminated)</li>
+        </ol>
+      </details>
+
+      <div class="approach-box">
+        <div class="approach-label">How to approach it</div>
+        <ul>
+          <li><strong>GQA is the tricky part.</strong> Q has 32 heads &times; 128 dim = 4096, K/V have 4 heads &times; 128 dim = 512. Different output sizes.</li>
+          <li><strong>Start simple:</strong> three separate <code>F.linear</code> calls with pre-merged weights. Verify correctness. <em>Then</em> fuse by concatenating.</li>
+          <li>Unsloth's approach: concatenate W_q, W_k, W_v &rarr; <code>[4096, 5120]</code>, one matmul, split output.</li>
+          <li>Test GQA explicitly: after fused forward, split output and verify Q[:,:,:32,:] matches reference Q.</li>
+          <li><strong>If running late by 4pm</strong>, ship the "three separate pre-merged" version. It's still a win (3 merged matmuls vs 6 unfused). Optimize to single matmul later.</li>
+        </ul>
+      </div>
+
+      <div class="exit-criteria">
+        <div class="ec-label">Done When</div>
+        <ul>
+          <li>Q/K/V output shapes match GQA spec (32 heads Q, 4 heads K/V)</li>
+          <li>Fused output matches three separate projections</li>
+          <li><code>gradcheck</code> on all 6 LoRA matrices (Aq, Bq, Ak, Bk, Av, Bv)</li>
+          <li>Measurably faster than unfused (1 or 3 matmuls vs 6)</li>
+        </ul>
+      </div>
+
+      <div class="assign-slot"><span class="person-icon">&#9679;</span> P5: has studied LoRA QKV + attention derivation</div>
+    </div>
+
+    <!-- H6: GeGLU Kernel -->
+    <div class="task-card critical" id="d1-t6">
+      <div class="task-header">
+        <span class="task-id">H6</span>
+        <span class="task-title">GeGLU Kernel (GELU Activation Path)</span>
+        <div class="task-tags">
+          <span class="tag critical">Critical</span>
+          <span class="tag time">~5-6 hrs</span>
+        </div>
+      </div>
+      <p class="task-desc">
+        Build the <strong>GELU activation path</strong> for Gemma's GeGLU MLP: <code>GELU(gate) * up</code> instead of <code>SiLU(gate) * up</code>.
+        Works on the <strong>same kernel file as P1 (H1)</strong>. P1 writes the SiLU path; you write the GELU path.
+        The forward is a simple activation swap, but the <strong>backward derivative is completely different</strong>:
+        GELU's derivative involves the error function (<code>erf</code>), not sigmoid.
+        This needs its own gradcheck, numerical stability testing, and benchmarking.
+      </p>
+
+      <details class="task-steps">
+        <summary>Steps</summary>
+        <ol>
+          <li>Read <code>forge_learning/module_4_kernel_math/01_gradient_derivation_swiglu.md</code> &mdash; understand the product-rule backward structure (same for both activations)</li>
+          <li><strong>Coordinate with P1 at 10:30:</strong> agree on kernel interface &mdash; the <code>activation</code> parameter, how it branches in the Triton kernel (<code>tl.constexpr</code>), shared <code>autograd.Function</code> structure</li>
+          <li>Write the GELU forward path in the shared Triton kernel: <code>GELU(gate) * up</code> when <code>activation == "gelu"</code></li>
+          <li>Write the GELU backward path &mdash; this is the hard part. The derivative of GELU is: <code>d_gelu = 0.5 * (1 + erf(x/sqrt(2))) + x * exp(-x^2/2) / sqrt(2*pi)</code>. So: <code>dgate = dY * up * d_gelu(gate)</code>, <code>dup = dY * GELU(gate)</code></li>
+          <li>Write <code>test_geglu.py</code>: gradcheck at float64 (critical &mdash; erf derivative is tricky), forward correctness vs <code>F.gelu(gate) * up</code> at bf16/fp16, backward correctness</li>
+          <li>Test numerical stability: GELU's <code>erf</code> and <code>exp(-x^2/2)</code> can behave differently at extreme values vs SiLU's sigmoid. Test at large input magnitudes.</li>
+          <li>Write <code>bench_geglu.py</code>: benchmark at Gemma shapes (hidden=2048, intermediate=16384)</li>
+          <li>Verify: <code>ForgeSwiGLU(dim, intermediate, activation="gelu")</code> produces correct output end-to-end</li>
+        </ol>
+      </details>
+
+      <div class="approach-box">
+        <div class="approach-label">How to approach it</div>
+        <ul>
+          <li><strong>Wait for P1 to land the kernel structure first</strong> (forward kernel + autograd.Function skeleton). P1 should have the SiLU forward working by ~12:00. Then you add the GELU branch.</li>
+          <li>While waiting for P1's skeleton, <strong>write your tests first</strong> (test-driven): <code>test_geglu.py</code> that tests <code>ForgeSwiGLU(..., activation="gelu")</code>. When the kernel is ready, run the tests.</li>
+          <li><strong>The backward is where you'll spend most time.</strong> SiLU backward uses <code>sigmoid</code> (simple, numerically stable). GELU backward uses <code>erf + exp(-x^2/2)</code> (more complex, potential numerical issues). Derive carefully, verify with gradcheck at float64.</li>
+          <li>Triton has <code>tl.math.erf</code> and <code>tl.math.exp</code>. Use fp32 accumulation for the erf computation even if inputs are bf16.</li>
+          <li>If P1 is behind schedule, help them finish the shared kernel structure first &mdash; you can't add GELU until the SiLU skeleton exists.</li>
+        </ul>
+      </div>
+
+      <div class="exit-criteria">
+        <div class="ec-label">Done When</div>
+        <ul>
+          <li><code>gradcheck</code> PASSES at float64 with shape <code>[2, 8, 4096]</code> (GELU path)</li>
+          <li>Forward output matches <code>F.gelu(gate) * up</code> within rtol=1e-5 at bf16 and fp16</li>
+          <li>Backward gradients match PyTorch autograd (GELU/erf derivative)</li>
+          <li>Numerical stability verified at large input magnitudes (no NaN/Inf from erf or exp)</li>
+          <li>Benchmark at Gemma shapes shows <strong>&ge;1.0&times; PyTorch</strong> speed</li>
+        </ul>
+      </div>
+
+      <div class="assign-slot"><span class="person-icon">&#9679;</span> P6: strong on numerical computing (coordinates with P1 on shared kernel)</div>
+    </div>
+
+    <!-- H7: Package Scaffold + Port Existing Kernels -->
+    <div class="task-card infra" id="d1-t7">
+      <div class="task-header">
+        <span class="task-id">H7</span>
+        <span class="task-title">Package Scaffold + Port Existing 4 Kernels</span>
+        <div class="task-tags">
+          <span class="tag infra">Infrastructure</span>
+          <span class="tag time">~5-6 hrs</span>
+        </div>
+      </div>
+      <p class="task-desc">
+        <strong>Day 2 force multiplier.</strong> Build the forge package structure, kernel registry, and port the 4 existing kernels
+        (RMSNorm, LayerNorm, Embedding, Fused Linear+CE) into the package. By end of Day 1, <code>pip install -e .</code>
+        works and 4 kernels are importable. This eliminates the 2.5-hour serial bottleneck that would otherwise start Day 2.
+      </p>
+
+      <details class="task-steps">
+        <summary>Steps</summary>
+        <ol>
+          <li>Create <code>forge/</code> directory with <code>pyproject.toml</code> (setuptools, Python &ge;3.9, depends on torch, triton, transformers)</li>
+          <li>Create <code>forge/forge/__init__.py</code>, <code>forge/forge/kernels/__init__.py</code></li>
+          <li>Create <code>forge/forge/kernels/registry.py</code>: <code>@register_kernel</code> decorator, <code>get()</code>, <code>list_kernels()</code></li>
+          <li>Port: <code>rmsnorm_study.ipynb</code> &rarr; <code>forge/forge/kernels/rmsnorm.py</code> (extract kernel, autograd.Function, Module)</li>
+          <li>Port: <code>layernorm/</code> &rarr; <code>forge/forge/kernels/layernorm.py</code></li>
+          <li>Port: <code>embedding_kernel/</code> &rarr; <code>forge/forge/kernels/embedding.py</code></li>
+          <li>Port: <code>fused_linear_ce_study.ipynb</code> &rarr; <code>forge/forge/kernels/fused_linear_ce.py</code></li>
+          <li>Add <code>@register_kernel</code> to each ported kernel</li>
+          <li>Verify: <code>pip install -e . && python -c "import forge; print(forge.kernels.list())"</code> &rarr; prints 4 kernel names</li>
+          <li>If time permits, start integrating any Day 1 kernels that finish early (H4 LoRA MLP is likely first)</li>
+        </ol>
+      </details>
+
+      <div class="approach-box">
+        <div class="approach-label">How to approach it</div>
+        <ul>
+          <li><strong>Look at Liger-Kernel's repo structure</strong> (<code>linkedin/Liger-Kernel</code> on GitHub). Their <code>src/liger_kernel/ops/</code> is exactly this pattern.</li>
+          <li>Porting from notebooks is mostly <strong>copy-paste + import cleanup</strong>. Remove notebook cells (plotting, exploration), fix imports.</li>
+          <li><strong>Test after each port.</strong> Don't port all 4 then test. Port one &rarr; verify <code>from forge.kernels.rmsnorm import ForgeRMSNorm</code> works &rarr; continue.</li>
+          <li>The registry is simple: <code>_REGISTRY = {}; register_kernel(name)</code> decorator; <code>get(name)</code>, <code>list_kernels()</code>.</li>
+          <li><strong>Aim to be done by 15:30 (CP-H2).</strong> Then spend the rest of Day 1 integrating kernels as they complete.</li>
+        </ul>
+      </div>
+
+      <div class="exit-criteria">
+        <div class="ec-label">Done When</div>
+        <ul>
+          <li><code>pip install -e ./forge</code> succeeds</li>
+          <li><code>forge.kernels.list()</code> returns at least 4 kernel names (RMSNorm, LayerNorm, Embedding, Fused Linear+CE)</li>
+          <li>Each kernel importable: <code>from forge.kernels.rmsnorm import ForgeRMSNorm</code></li>
+          <li>Existing tests still pass when imported from the package</li>
+        </ul>
+      </div>
+
+      <div class="assign-slot"><span class="person-icon">&#9679;</span> P7: familiar with Python packaging and Liger-Kernel structure</div>
+    </div>
+
+    <!-- H8: Patching Infra + FSDP2 Research -->
+    <div class="task-card infra" id="d1-t8">
+      <div class="task-header">
+        <span class="task-id">H8</span>
+        <span class="task-title">Patching Infrastructure + FSDP2 Research</span>
+        <div class="task-tags">
+          <span class="tag infra">Infrastructure</span>
+          <span class="tag time">~5-6 hrs</span>
+        </div>
+      </div>
+      <p class="task-desc">
+        Build the <code>forge.patch(model)</code> / <code>forge.unpatch(model)</code> machinery and the Qwen3 + Gemma module
+        mapping files. Also handles the two trivial Gemma kernel parameter changes (RMSNorm offset, RoPE base),
+        traces the Gemma module tree, and researches FSDP2 compatibility.
+        This person writes the code that P8 and P6 will wire up on Day 2.
+      </p>
+
+      <details class="task-steps">
+        <summary>Steps</summary>
+        <ol>
+          <li><strong>Study <code>integration_gpt2large/integration_test.ipynb</code></strong> &mdash; understand the monkey-patching pattern and closure factory</li>
+          <li>Create <code>forge/forge/patching/patch.py</code>: <code>forge.patch(model, kernels=None)</code>, <code>forge.unpatch(model)</code></li>
+          <li>Implement architecture detection: inspect model class name to determine Qwen3 vs Gemma vs unknown</li>
+          <li>Create <code>forge/forge/patching/qwen3.py</code> &mdash; map Qwen3 module types to Forge kernels. Trace Qwen2.5-0.5B module tree.</li>
+          <li><strong>Gemma module trace:</strong> Load <code>google/gemma-2-2b</code>, run <code>for name, mod in model.named_modules(): print(name, type(mod).__name__)</code>. Document every module class name. This feeds directly into <code>gemma.py</code>.</li>
+          <li><strong>RMSNorm offset param (~20 min):</strong> Add <code>offset</code> parameter to ForgeRMSNorm. When <code>offset=1.0</code>, kernel computes <code>(weight + 1.0) * x / rms</code>. Write one test: <code>ForgeRMSNorm(4096, offset=1.0)</code> matches Gemma's behavior.</li>
+          <li><strong>RoPE base param (~20 min):</strong> Coordinate with P2 (H2) to ensure ForgeRoPE accepts a <code>base</code> parameter (default 10000.0). Gemma uses a different base. This changes the cos/sin frequency table precomputation, not the Triton kernel. Write one test confirming the different base produces different outputs.</li>
+          <li>Create <code>forge/forge/patching/gemma.py</code> &mdash; map Gemma module types to Forge kernels with config overrides: <code>GemmaRMSNorm &rarr; rmsnorm(offset=1.0)</code>, <code>GemmaMLP &rarr; swiglu(activation="gelu")</code>, <code>GemmaRotaryEmbedding &rarr; rope(base=...)</code></li>
+          <li>Store originals in <code>model._forge_originals</code> for unpatch. Use closure factory to avoid loop-variable capture bug.</li>
+          <li><strong>FSDP2 research (afternoon):</strong> Study PyTorch FSDP2 docs. Key question: does <code>ctx.save_for_backward(weight)</code> work when FSDP2 shards the weight?</li>
+          <li>Write <code>test_fsdp2_smoke.py</code> script: minimal model with ForgeRMSNorm + nn.Linear, FSDP-wrapped, fwd+bwd on 2 GPUs, compare gradients to single-GPU</li>
+          <li>Document FSDP2 findings: known issues, pattern requirements, Phase 3 recommendations</li>
+        </ol>
+      </details>
+
+      <div class="approach-box">
+        <div class="approach-label">How to approach it</div>
+        <ul>
+          <li><strong>Split your day: patching (morning) + FSDP2 (afternoon).</strong> Patching infra needs to be code-complete by ~3pm so it's ready for Day 2. FSDP2 research fills the rest.</li>
+          <li><strong>The patching code works against the registry, not specific kernels.</strong> You can test with existing kernels (RMSNorm) while Day 1 kernels are still being written.</li>
+          <li>Closure factory pattern: <code>_make_forge_fwd(mod)</code> &mdash; avoids Python loop-variable capture. The integration test notebook documents this pitfall.</li>
+          <li><strong>RMSNorm offset and RoPE base are trivial.</strong> Each is ~20 min of work. Do them early so they're out of the way. The RMSNorm offset is a 1-line kernel change; the RoPE base is a constructor arg.</li>
+          <li><strong>Trace Gemma modules yourself</strong> &mdash; don't wait for anyone. Load gemma-2-2b, print the module tree, use that to write gemma.py directly.</li>
+          <li>For FSDP2: study HF's FSDP examples and <code>accelerate</code>'s FSDP config. Pre-write the smoke test script so Day 2 just runs it.</li>
+        </ul>
+      </div>
+
+      <div class="exit-criteria">
+        <div class="ec-label">Done When</div>
+        <ul>
+          <li><code>patch.py</code> code complete with architecture detection, module replacement, closure factory, unpatch</li>
+          <li><code>qwen3.py</code> mapping file written (mapping Qwen3 module types &rarr; Forge kernel names)</li>
+          <li><code>gemma.py</code> mapping file written (with Gemma-specific config overrides: offset=1.0, activation="gelu", Gemma RoPE base)</li>
+          <li><code>ForgeRMSNorm(4096, offset=1.0)</code> passes correctness test</li>
+          <li><code>ForgeRoPE(..., base=gemma_base)</code> produces different output than default base</li>
+          <li>Gemma module tree documented (all module class names mapped)</li>
+          <li><code>test_fsdp2_smoke.py</code> script written and ready to run on 2-GPU node</li>
+          <li>FSDP2 research notes documented: key findings, known issues, pattern recommendations</li>
+        </ul>
+      </div>
+
+      <div class="assign-slot"><span class="person-icon">&#9679;</span> P8: has studied HF Transformer internals + FSDP2 docs</div>
+    </div>
+
+  </div><!-- /task-grid -->
+
+  <div class="checkpoint">
+    <span class="cp-icon">&#9889;</span>
+    <div class="cp-content">
+      <div class="cp-time">Checkpoint CP-H3 &middot; Saturday 5:30pm</div>
+      <div class="cp-title">All 5 new kernels + GeGLU pass tests. Package installable. Patching infra code-complete.</div>
+      <div class="cp-desc">Every kernel has: Triton fwd+bwd, autograd.Function, nn.Module, passing test file. GeGLU backward (erf derivative) passes gradcheck. RMSNorm offset and RoPE base params added. forge package has 4+ kernels in registry. Patching infrastructure ready for Day 2 wiring. FSDP2 smoke test script written.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Forge Hackathon &middot; May 23&ndash;24, 2026 &middot; Eight engineers. Two days. Nine kernels. Two models. FSDP2 smoke test. Ship it.
+</footer>
+
+</main>
+</div>
+
+<!-- Scroll spy -->
+<script>
+(function() {
+  const path = window.location.pathname.split('/').pop() || 'index.html';
+  const current = path === '' ? 'index.html' : path;
+
+  // Auto-expand the sidebar group matching the current page; collapse others
+  document.querySelectorAll('.sidebar-group').forEach(g => {
+    if (g.dataset.page === current) {
+      g.setAttribute('open', '');
+      g.classList.add('current-group');
+    } else {
+      g.removeAttribute('open');
+    }
+  });
+  const links = document.querySelectorAll('.sidebar nav a');
+  const sections = [];
+  links.forEach(a => {
+    const href = a.getAttribute('href') || '';
+    const onThisPage = href.startsWith('#') || href.startsWith(current);
+    if (onThisPage) {
+      a.classList.add('current-page');
+      const id = href.split('#')[1];
+      if (id) {
+        const el = document.getElementById(id);
+        if (el) sections.push({ el, link: a });
+      }
+    }
+  });
+
+  function onScroll() {
+    let active = null;
+    const y = window.scrollY + 120;
+    for (let i = sections.length - 1; i >= 0; i--) {
+      if (sections[i].el.offsetTop <= y) { active = sections[i]; break; }
+    }
+    document.querySelectorAll('.sidebar nav a.active').forEach(l => l.classList.remove('active'));
+    if (active) active.link.classList.add('active');
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+</script>
+</body>
+</html>

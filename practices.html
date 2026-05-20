@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forge Hackathon &mdash; Engineering Practices &middot; Build Workflow &amp; AI Tips</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="layout">
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar">
+  <a class="sidebar-brand-link" href="index.html">
+    <div class="sidebar-brand"><span class="fire">Forge</span> Hackathon</div>
+    <div class="sidebar-date">May 23 &ndash; 24, 2026</div>
+  </a>
+  <div class="sidebar-note">Sections marked with <span class="important-marker">*</span> are important.</div>
+
+
+  <details class="sidebar-group" data-page="index.html">
+  <summary class="sidebar-section"><a href="index.html" class="sidebar-group-title important" onclick="event.stopPropagation()">Overview</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="index.html#target">Target &amp; Demo</a>
+    <a href="index.html#schedule">Schedule</a>
+    <a href="index.html#assignments">Team Assignments</a>
+    <a href="index.html#prep">Pre-Hackathon Checklist</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="day1.html">
+  <summary class="sidebar-section"><a href="day1.html" class="sidebar-group-title important" onclick="event.stopPropagation()">Day 1 &mdash; 8 Parallel Tracks</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="day1.html#d1-t1">H1 &middot; SwiGLU kernel</a>
+    <a href="day1.html#d1-t2">H2 &middot; RoPE kernel</a>
+    <a href="day1.html#d1-t3">H3 &middot; Cross-Entropy kernel</a>
+    <a href="day1.html#d1-t4">H4 &middot; LoRA MLP fused</a>
+    <a href="day1.html#d1-t5">H5 &middot; LoRA QKV fused</a>
+    <a href="day1.html#d1-t6">H6 &middot; GeGLU kernel</a>
+    <a href="day1.html#d1-t7">H7 &middot; Package scaffold + porting</a>
+    <a href="day1.html#d1-t8">H8 &middot; Patching infra + FSDP2</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="day2.html">
+  <summary class="sidebar-section"><a href="day2.html" class="sidebar-group-title important" onclick="event.stopPropagation()">Day 2 &mdash; Integration Sprint</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="day2.html#d2-t1">H9 &middot; Port Day 1 kernels</a>
+    <a href="day2.html#d2-t2">H10 &middot; forge.patch (Qwen3)</a>
+    <a href="day2.html#d2-t3">H11 &middot; forge.patch (Gemma)</a>
+    <a href="day2.html#d2-t4">H12 &middot; Training pipeline</a>
+    <a href="day2.html#d2-t5">H13 &middot; Test suite + integration</a>
+    <a href="day2.html#d2-t6">H14 &middot; Benchmarks + docs</a>
+    <a href="day2.html#d2-t7">H15 &middot; FSDP2 smoke test</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="smoketest.html">
+  <summary class="sidebar-section"><a href="smoketest.html" class="sidebar-group-title" onclick="event.stopPropagation()">Smoke Test</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="smoketest.html#smoketest">FSDP2 Smoke Test (H15)</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="practices.html">
+  <summary class="sidebar-section"><a href="practices.html" class="sidebar-group-title important" onclick="event.stopPropagation()">Engineering Practices</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="practices.html#good-practices">Good Practices (Build Workflow)</a>
+    <a href="practices.html#ai-tips">Tips for Using AI</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="details.html">
+  <summary class="sidebar-section"><a href="details.html" class="sidebar-group-title" onclick="event.stopPropagation()">Design Details</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="details.html#scope">Scope Priority Ladder</a>
+    <a href="details.html#repo">Repo + Package Layout</a>
+    <a href="details.html#patching-design">Patching Architecture</a>
+    <a href="details.html#qwen3-map">Qwen3 Patch Mapping</a>
+    <a href="details.html#gemma-map">Gemma Patch Mapping</a>
+    <a href="details.html#training">Training Loop (Custom)</a>
+    <a href="details.html#integration">Integration Tests</a>
+    <a href="details.html#decisions">Decision Log (12)</a>
+  </nav>
+  </details>
+
+  <details class="sidebar-group" data-page="planning.html">
+  <summary class="sidebar-section"><a href="planning.html" class="sidebar-group-title" onclick="event.stopPropagation()">Planning</a><span class="sidebar-group-arrow" aria-hidden="true"></span></summary>
+  <nav>
+    <a href="planning.html#deps">Dependencies</a>
+    <a href="planning.html#risks">Risks &amp; Contingency</a>
+    <a href="planning.html#stretch">Stretch Goals</a>
+  </nav>
+  </details>
+
+  <div class="sidebar-stats">
+    <div class="stat-row">
+      <span class="stat-label">Tasks</span>
+      <span class="stat-value">15 core + 2 stretch</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">People</span>
+      <span class="stat-value">8</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Hours</span>
+      <span class="stat-value">~13 hrs</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Kernels</span>
+      <span class="stat-value">9 (Qwen3 + Gemma)</span>
+    </div>
+  </div>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<main>
+
+<a class="back-link" href="index.html"><span class="arrow">&larr;</span> Back to overview</a>
+
+<div class="page-header">
+  <h1>Engineering Practices</h1>
+  <p>Two sources of truth for Day 1: the precise step-by-step workflow for building a kernel (with mandatory checkpoints at each step), and the dos and don'ts of AI-assisted kernel writing. Refer to this whenever in doubt about whether a kernel is ready to ship.</p>
+</div>
+
+<!-- =========================================================
+     SECTION 1 — GOOD PRACTICES
+     ========================================================= -->
+<section id="good-practices">
+  <h2>Good Practices &mdash; Kernel Build Workflow</h2>
+  <p class="section-desc">
+    <strong>5 steps. 5 step-level checkpoints. 7 done-gates.</strong> A kernel is done ONLY when all seven done-gates pass &mdash; no exceptions, no partial credit. If a gate fails, mark the kernel as "needs follow-up" and move on. <strong>Do not pretend a kernel is done when it isn't.</strong>
+  </p>
+
+  <!-- ============ STEP 1 ============ -->
+  <div class="task-card" id="step1">
+    <div class="task-header">
+      <span class="task-id">Step 1</span>
+      <span class="task-title">Read the math &mdash; NO CODING YET</span>
+      <div class="task-tags">
+        <span class="tag time">~30 min</span>
+        <span class="tag">No code</span>
+      </div>
+    </div>
+    <p class="task-desc">Read three things in this exact order before writing a single line of code. Skipping this step is the #1 cause of multi-hour debug sessions later.</p>
+    <ol class="task-steps">
+      <li><strong>Your <code>forge_learning/module_4_kernel_math/*</code> chapter</strong> &mdash; the gradient derivation. Read in full, including any worked examples.</li>
+      <li><strong>Your <code>forge_learning/module_5_kernel_implementation/*</code> chapter</strong> &mdash; the implementation prompt and the specific shape/dtype constraints.</li>
+      <li><strong>The Liger or Unsloth source file for the same kernel</strong> &mdash; line by line. Open the file in a tab and read every line. Compare against the math.</li>
+    </ol>
+
+    <div class="exit-criteria">
+      <div class="ec-label">Checkpoint 1 &mdash; gate to Step 2 (all 4 required)</div>
+      <ul>
+        <li>You can write the <strong>forward formula</strong> on paper without looking</li>
+        <li>You can write the <strong>backward formula</strong> on paper (both <code>dL/dinput</code> and <code>dL/dweight</code> if applicable)</li>
+        <li>You can list <strong>exactly which tensors</strong> get saved in <code>ctx.save_for_backward</code></li>
+        <li>You can list the <strong>shape and dtype</strong> of every input and output tensor</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ STEP 2 ============ -->
+  <div class="task-card" id="step2">
+    <div class="task-header">
+      <span class="task-id">Step 2</span>
+      <span class="task-title">Forward only, with a PyTorch reference</span>
+      <div class="task-tags">
+        <span class="tag time">~60-90 min</span>
+        <span class="tag">Forward path</span>
+      </div>
+    </div>
+    <p class="task-desc">Build forward first. Backward returns <code>None</code> placeholders. Get forward correctness before touching backward &mdash; this is non-negotiable.</p>
+    <ol class="task-steps">
+      <li>Write a <strong>pure-PyTorch reference function</strong> first: <code>def ref_forward(x, w): return ...</code>. This is your oracle.</li>
+      <li>Write the <strong>Triton forward kernel</strong> (<code>@triton.jit</code> function).</li>
+      <li>Write <strong><code>ForgeXxxFunction(autograd.Function)</code></strong> with <code>forward</code> wired up and <code>backward</code> returning <code>None</code>-filled tuple.</li>
+      <li>Write <strong><code>test_forward_correctness</code></strong>: <code>torch.allclose(forge_forward(x, w), ref_forward(x, w))</code> at <strong>4+ shapes</strong> including Qwen3 shapes (hidden=4096, intermediate=11008).</li>
+      <li>Test at <strong>bf16, fp16, and fp32</strong> dtypes.</li>
+    </ol>
+
+    <div class="exit-criteria">
+      <div class="ec-label">Checkpoint 2 &mdash; gate to Step 3 (all required)</div>
+      <ul>
+        <li><code>test_forward_correctness</code> PASSES at fp32 with <code>rtol=1e-5</code></li>
+        <li><code>test_forward_correctness</code> PASSES at bf16 with <code>rtol=1e-2</code> at all 4+ shapes</li>
+        <li>No NaN or Inf in outputs at any tested shape</li>
+        <li><strong>Do NOT proceed to backward until forward is bulletproof.</strong> A broken forward will make gradcheck failures impossible to diagnose.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ STEP 3 ============ -->
+  <div class="task-card" id="step3">
+    <div class="task-header">
+      <span class="task-id">Step 3</span>
+      <span class="task-title">Backward kernel + gradcheck</span>
+      <div class="task-tags">
+        <span class="tag time">~60-90 min</span>
+        <span class="tag">Backward path</span>
+      </div>
+    </div>
+    <p class="task-desc">Now wire up backward. <code>gradcheck</code> at fp64 is the gold standard for backward correctness &mdash; if it passes, the math is right.</p>
+    <ol class="task-steps">
+      <li>Write the <strong>Triton backward kernel</strong> using the saved tensors from Step 2.</li>
+      <li>Wire it into <code>ForgeXxxFunction.backward</code>.</li>
+      <li>Run <strong><code>torch.autograd.gradcheck(ForgeXxxFunction.apply, inputs_fp64)</code></strong> with default tolerances. fp64 inputs eliminate precision noise &mdash; pure math check.</li>
+      <li>Run <strong><code>test_backward_correctness</code></strong>: compare <code>.grad</code> from your Function vs PyTorch autograd on the reference, at bf16 and fp16.</li>
+    </ol>
+
+    <div class="approach-box">
+      <div class="approach-label">If gradcheck fails</div>
+      <ul>
+        <li><strong>"max relative error" &gt; 1e-3 at fp64:</strong> math bug in your backward kernel. Re-derive on paper. Check sign errors, missed terms, wrong broadcasting.</li>
+        <li><strong>fp64 PASSES but bf16 diverges:</strong> precision bug, not math bug. You're missing <code>tl.float32</code> accumulation in a reduction. fp64 hides this; bf16 surfaces it.</li>
+        <li><strong>Forward affects backward gradient:</strong> if you tweaked Step 2 to fix gradcheck, you broke forward. Re-verify Step 2 first.</li>
+      </ul>
+    </div>
+
+    <div class="exit-criteria">
+      <div class="ec-label">Checkpoint 3 &mdash; gate to Step 4 (all required)</div>
+      <ul>
+        <li><code>torch.autograd.gradcheck(...)</code> PASSES at fp64 with default tolerances</li>
+        <li><code>test_backward_correctness</code> PASSES at bf16 with <code>rtol=1e-2</code></li>
+        <li>No NaN in any gradient at any tested shape</li>
+        <li>Gradients are returned for the correct number of inputs (PyTorch will silently error otherwise)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ STEP 4 ============ -->
+  <div class="task-card" id="step4">
+    <div class="task-header">
+      <span class="task-id">Step 4</span>
+      <span class="task-title">Performance + benchmarks</span>
+      <div class="task-tags">
+        <span class="tag time">~60 min</span>
+        <span class="tag">Benchmarks</span>
+      </div>
+    </div>
+    <p class="task-desc">Correctness alone is not enough &mdash; a correct kernel slower than PyTorch is a net regression. Use the shared harness; don't roll your own timing.</p>
+    <ol class="task-steps">
+      <li>Wrap the autograd.Function in an <strong><code>nn.Module</code></strong>.</li>
+      <li>Write <strong><code>benchmarks/bench_&lt;name&gt;.py</code></strong> using <code>benchmarks/harness.py</code>:
+        <ul>
+          <li><code>benchmark_cuda()</code> for timing (CUDA events, NOT <code>time.time()</code>)</li>
+          <li><code>measure_memory()</code> for peak VRAM</li>
+          <li>L2 cache flush between runs</li>
+          <li>30 runs minimum, IQR filtering (per <code>rules.txt</code>)</li>
+        </ul>
+      </li>
+      <li>Benchmark against: <strong>PyTorch baseline, Liger equivalent, Unsloth equivalent</strong>.</li>
+      <li>Test at Qwen3 shapes: <code>seq_len ∈ {512, 1024, 2048, 4096}</code>, <code>batch ∈ {1, 4}</code>, dtype bf16.</li>
+      <li>Append one CSV row per shape to <code>benchmarks/results/cp1_kernel_benchmarks.csv</code>.</li>
+    </ol>
+
+    <div class="exit-criteria">
+      <div class="ec-label">Checkpoint 4 &mdash; gate to Step 5 (all required)</div>
+      <ul>
+        <li>Speed (fwd+bwd combined): <strong>&ge; 1.0&times; PyTorch</strong> at every tested shape (hard floor &mdash; no regression)</li>
+        <li>Peak memory: <strong>&le; PyTorch</strong> at every tested shape (hard floor &mdash; no regression)</li>
+        <li>CSV row exists for every (kernel, shape, dtype) combination</li>
+        <li>If your kernel is <strong>critical</strong> (SwiGLU, RMSNorm, CE, Fused Linear+CE): meets the per-kernel target from the V1 plan (e.g., SwiGLU &ge; 1.3&times;, RMSNorm &ge; 1.2&times;, CE memory &le; 50%)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ STEP 5 ============ -->
+  <div class="task-card" id="step5">
+    <div class="task-header">
+      <span class="task-id">Step 5</span>
+      <span class="task-title">Writeup</span>
+      <div class="task-tags">
+        <span class="tag time">~30 min</span>
+        <span class="tag">Documentation</span>
+      </div>
+    </div>
+    <p class="task-desc">Brief markdown writeup. Doesn't have to be polished &mdash; it has to exist. Future-you debugging this kernel in 3 weeks will thank present-you.</p>
+    <ol class="task-steps">
+      <li>Follow the structure in <code>teaching_guideline.md</code>.</li>
+      <li>Include: forward formula, backward formula, what's saved for backward, autotune config rationale, benchmark numbers.</li>
+      <li>Commit alongside the kernel in <code>chapter_&lt;name&gt;.md</code>.</li>
+    </ol>
+
+    <div class="exit-criteria">
+      <div class="ec-label">Checkpoint 5 &mdash; final gate</div>
+      <ul>
+        <li><code>chapter_&lt;name&gt;.md</code> exists at the repo root</li>
+        <li>Contains forward formula, backward formula, saved-tensors list, benchmark table</li>
+        <li>Anyone on the team can read it and rebuild your kernel from scratch</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- =============== THE 7 DONE GATES =============== -->
+  <h3>The 7 Done-Gates &mdash; All Must Pass</h3>
+  <p>A kernel is <strong>done and dusted</strong> ONLY when every one of these 7 gates is green. If any gate is red, the kernel is NOT done. Mark it as "needs follow-up" in the team chat and move on &mdash; do not silently call it done.</p>
+
+  <table class="matrix">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Gate</th>
+        <th>How to check</th>
+        <th>Pass threshold</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>G1</strong></td>
+        <td><code>gradcheck</code> at fp64</td>
+        <td><code>torch.autograd.gradcheck(Fn.apply, inputs_fp64)</code></td>
+        <td>Returns <code>True</code> with default tolerances</td>
+      </tr>
+      <tr>
+        <td><strong>G2</strong></td>
+        <td>Forward correctness at bf16 + fp16</td>
+        <td><code>torch.allclose</code> vs PyTorch reference</td>
+        <td><code>rtol=1e-2</code> at bf16, 4+ shapes including Qwen3 (hidden=4096, intermediate=11008)</td>
+      </tr>
+      <tr>
+        <td><strong>G3</strong></td>
+        <td>Backward correctness at bf16 + fp16</td>
+        <td><code>torch.allclose(forge_grad, ref_grad)</code></td>
+        <td><code>rtol=1e-2</code> at bf16, no NaN</td>
+      </tr>
+      <tr>
+        <td><strong>G4</strong></td>
+        <td>Speed &ge; 1.0&times; PyTorch</td>
+        <td><code>benchmarks/harness.py</code> CUDA event timing</td>
+        <td>No regression fwd+bwd combined, at every tested shape</td>
+      </tr>
+      <tr>
+        <td><strong>G5</strong></td>
+        <td>Peak memory &le; PyTorch</td>
+        <td><code>torch.cuda.max_memory_allocated()</code></td>
+        <td>No regression at every tested shape</td>
+      </tr>
+      <tr>
+        <td><strong>G6</strong></td>
+        <td>Benchmark CSV row exists</td>
+        <td>Check <code>benchmarks/results/cp1_kernel_benchmarks.csv</code></td>
+        <td>One row per (kernel, shape, dtype)</td>
+      </tr>
+      <tr>
+        <td><strong>G7</strong></td>
+        <td>Code in expected file structure</td>
+        <td>Files exist at expected paths</td>
+        <td><code>forge/kernels/&lt;name&gt;.py</code> + <code>tests/test_&lt;name&gt;.py</code> + <code>benchmarks/bench_&lt;name&gt;.py</code> + <code>chapter_&lt;name&gt;.md</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="approach-box">
+    <div class="approach-label">Critical-Kernel Stronger Floors (G4 raised)</div>
+    <ul>
+      <li><strong>SwiGLU / GeGLU:</strong> &ge; 1.3&times; PyTorch, within 15% of Liger</li>
+      <li><strong>RMSNorm:</strong> &ge; 1.2&times; PyTorch</li>
+      <li><strong>Cross-Entropy:</strong> peak memory &le; 50% of <code>F.cross_entropy</code></li>
+      <li><strong>Fused Linear+CE:</strong> peak memory &le; 40% of separate <code>F.linear + F.cross_entropy</code></li>
+      <li>If a critical kernel passes G4 (&ge; 1.0&times;) but misses the stronger target: <strong>shippable but flagged</strong> &mdash; done for Day 1, optimize post-hackathon.</li>
+    </ul>
+  </div>
+
+  <!-- =============== DAY 1 CADENCE =============== -->
+  <h3>Day 1 Cadence &mdash; the Mental Clock</h3>
+  <p>Use this as your personal timeline. If you're behind at any checkpoint, raise a hand in chat. <strong>Do not silently skip a step.</strong></p>
+
+  <div class="dep-box"><span class="dep-purple">DAY 1 &mdash; PER-KERNEL CADENCE</span>
+
+  10:30 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ start
+          <span class="dep-highlight">Step 1</span> Read the math (30 min)
+  11:00   ── checkpoint 1: can you write the 4 questions on paper? ──
+          <span class="dep-highlight">Step 2</span> Forward + PyTorch reference (90 min)
+  12:30   ── checkpoint 2: does forward correctness pass at bf16? ──
+  <span class="dep-green">13:00 ━ CP-H1 (forward kernels working) — lunch break</span>
+          <span class="dep-highlight">Step 3</span> Backward + gradcheck (90 min)
+  15:15   ── checkpoint 3: does gradcheck pass at fp64? ──
+          <span class="dep-highlight">Step 4</span> Performance + benchmark (60 min)
+  16:15   ── checkpoint 4: speed &ge; 1.0&times; PyTorch? memory &le; PyTorch? ──
+          <span class="dep-highlight">Step 5</span> Writeup (30 min)
+  <span class="dep-green">17:30 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ kernel done</span>
+
+  <span class="dep-blue">If you're behind at any checkpoint:</span>
+    - Raise a hand in team chat IMMEDIATELY (don't suffer in silence)
+    - Pair with someone who finished early
+    - Cut scope only as a last resort &mdash; tell the group what's being cut</div>
+</section>
+
+<!-- =========================================================
+     SECTION 2 — TIPS FOR USING AI
+     ========================================================= -->
+<section id="ai-tips">
+  <h2>Tips for Using AI</h2>
+  <p class="section-desc">
+    AI is doing a lot of the typing on Day 1. Used well, it's a 3-5&times; force multiplier. Used badly, it produces plausible-looking code that fails gradcheck in subtle ways and wastes hours.
+    <strong>The mental model: AI types the boilerplate, you verify the math against the reference.</strong> Never the other way around.
+  </p>
+
+  <h3>Good ways to use AI</h3>
+  <div class="task-card">
+    <div class="task-header">
+      <span class="task-id">DO</span>
+      <span class="task-title">Anchor every prompt on a real reference</span>
+    </div>
+    <p class="task-desc">AI hallucinations drop dramatically when you give it concrete source to reason about. Always provide:</p>
+    <ul class="task-steps">
+      <li>The Liger or Unsloth source file (paste the full file, not just a snippet)</li>
+      <li>Your module 4 gradient derivation (paste the relevant section)</li>
+      <li>A working kernel from your repo to mirror style/patterns (e.g., your RMSNorm kernel)</li>
+    </ul>
+    <div class="exit-criteria">
+      <div class="ec-label">Example prompts that work</div>
+      <ul>
+        <li>"Walk me through <code>linkedin/Liger-Kernel/src/liger_kernel/ops/swiglu.py</code> block by block &mdash; what does each <code>tl.load</code> correspond to in the math?"</li>
+        <li>"Given this gradient derivation [paste module 4 chapter], draft a Triton backward kernel. Use the same autotune config pattern as the RMSNorm kernel in our repo [paste]."</li>
+        <li>"My <code>gradcheck</code> is failing with <code>max_relative_error=0.003</code>. Here's my backward [paste full file]. Walk through line by line against the derivation [paste]. Where is the math wrong?"</li>
+        <li>"Generate edge-case tests for this Triton kernel: tiny shapes, non-aligned shapes, all-zeros input, all-NaN input."</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Bad ways to use AI</h3>
+  <div class="task-card" style="border-left-color: #ef4444;">
+    <div class="task-header">
+      <span class="task-id" style="background: #fee2e2; color: #ef4444;">DON'T</span>
+      <span class="task-title">No-context prompts and blind trust</span>
+    </div>
+    <div class="exit-criteria">
+      <div class="ec-label">Anti-patterns to avoid</div>
+      <ul>
+        <li><strong>"Write me a SwiGLU Triton kernel"</strong> &mdash; no context, no anchor reference. High hallucination risk. The kernel will look plausible and fail subtle correctness tests.</li>
+        <li><strong>Trusting AI's first answer without running it.</strong> Always run <code>gradcheck</code>, not just <code>allclose</code>.</li>
+        <li><strong>Asking AI for the gradient math.</strong> Use module 4 instead &mdash; that derivation is already verified by your team. AI is more likely to introduce errors here than help.</li>
+        <li><strong>Copy-pasting code you don't understand.</strong> If you can't explain every line of the Triton kernel back to the team, you have a debt that will surface during integration on Day 2.</li>
+        <li><strong>Pasting an error stack trace alone.</strong> Always include: the code, what you expected, what happened. "Fix this error: X" without context produces flailing.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Triton-specific AI failure modes (watch for these)</h3>
+  <p>These are the bugs we've seen AI introduce most often when writing Triton kernels. Each one passes a casual code review and fails a careful one.</p>
+
+  <table class="matrix">
+    <thead>
+      <tr>
+        <th>Failure mode</th>
+        <th>Symptom</th>
+        <th>How to catch it</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Missing <code>mask=</code> on <code>tl.load</code> for partial tiles</td>
+        <td>Silent out-of-bounds reads of garbage memory. <code>gradcheck</code> mysteriously fails at non-power-of-2 shapes.</td>
+        <td>Test at <strong>non-aligned shapes</strong> (e.g., seq_len=1023, hidden=4097). If pass at 1024/4096 but fail at 1023/4097, this is it.</td>
+      </tr>
+      <tr>
+        <td>Wrong autotune configs</td>
+        <td>Kernel runs and is correct, but is 3-5&times; slower than it should be.</td>
+        <td>Benchmark against Liger. If you're &gt;30% slower than Liger on similar hardware, suspect autotune. Copy our RMSNorm kernel's 22-config set as a starting point.</td>
+      </tr>
+      <tr>
+        <td>Backward kernel that LOOKS right but has subtle math errors</td>
+        <td><code>gradcheck</code> fails with small but non-trivial error (~1e-3 to 1e-2).</td>
+        <td><code>gradcheck</code> at fp64 is your safety net. Trust it over the kernel.</td>
+      </tr>
+      <tr>
+        <td>Missing fp32 accumulation in bf16 reductions</td>
+        <td><code>gradcheck</code> passes at fp64 but bf16 training NaNs after ~50 steps.</td>
+        <td>Always cast to <code>tl.float32</code> inside any reduction loop, even if inputs are bf16. Match the RMSNorm kernel's pattern.</td>
+      </tr>
+      <tr>
+        <td>Stale Triton API usage</td>
+        <td>Code fails to compile or has deprecation warnings.</td>
+        <td>AI training data may be 6-12 months old. Reference Triton's docs and your own working kernels, not just AI.</td>
+      </tr>
+      <tr>
+        <td>Wrong block-size assumptions</td>
+        <td>Kernel works at small shapes, OOMs or hangs at Qwen3 shapes.</td>
+        <td>Test at the actual Qwen3 shapes (hidden=4096, intermediate=11008) before declaring done.</td>
+      </tr>
+      <tr>
+        <td>Confused autograd.Function input/output count</td>
+        <td><code>TypeError: backward() must return as many tensors as forward() input.</code></td>
+        <td>Count inputs to <code>forward</code>; <code>backward</code> must return that many gradients (use <code>None</code> for non-differentiable inputs like the weight in some kernels).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>The mental model</h3>
+  <div class="approach-box">
+    <div class="approach-label">How to think about AI assistance</div>
+    <ul>
+      <li><strong>AI is a fast typist with imperfect math.</strong> Let it type. Verify the math yourself.</li>
+      <li><strong>Anchor every prompt on a real reference.</strong> Liger/Unsloth source + module 4 derivation are your safety net.</li>
+      <li><strong>Run gradcheck religiously.</strong> It's the only tool that reliably catches subtle math bugs that AI introduces.</li>
+      <li><strong>If you can't explain a line of code, you don't own it.</strong> And on Day 2 when it breaks, you won't be able to fix it.</li>
+      <li><strong>Pair on tricky kernels.</strong> Two people prompting AI together catches more issues than one person flying solo. P1+P6 on the shared SwiGLU/GeGLU file is the explicit example of this.</li>
+      <li><strong>When AI confidently asserts something that contradicts the reference:</strong> trust the reference. Always.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  Forge Hackathon &middot; May 23&ndash;24, 2026 &middot; Engineering Practices &middot; 5 steps. 5 checkpoints. 7 done-gates. No partial credit.
+</footer>
+
+</main>
+</div>
+
+<!-- Scroll spy -->
+<script>
+(function() {
+  const path = window.location.pathname.split('/').pop() || 'index.html';
+  const current = path === '' ? 'index.html' : path;
+
+  // Auto-expand the sidebar group matching the current page; collapse others
+  document.querySelectorAll('.sidebar-group').forEach(g => {
+    if (g.dataset.page === current) {
+      g.setAttribute('open', '');
+      g.classList.add('current-group');
+    } else {
+      g.removeAttribute('open');
+    }
+  });
+  const links = document.querySelectorAll('.sidebar nav a');
+  const sections = [];
+  links.forEach(a => {
+    const href = a.getAttribute('href') || '';
+    const onThisPage = href.startsWith('#') || href.startsWith(current);
+    if (onThisPage) {
+      a.classList.add('current-page');
+      const id = href.split('#')[1];
+      if (id) {
+        const el = document.getElementById(id);
+        if (el) sections.push({ el, link: a });
+      }
+    }
+  });
+
+  function onScroll() {
+    let active = null;
+    const y = window.scrollY + 120;
+    for (let i = sections.length - 1; i >= 0; i--) {
+      if (sections[i].el.offsetTop <= y) { active = sections[i]; break; }
+    }
+    document.querySelectorAll('.sidebar nav a.active').forEach(l => l.classList.remove('active'));
+    if (active) active.link.classList.add('active');
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+</script>
+</body>
+</html>
