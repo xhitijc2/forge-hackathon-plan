@@ -209,6 +209,31 @@ trainer = Trainer(model=model, args=training_args, train_dataset=dataset)
 trainer.<span class="func">train</span>()  <span class="comment"># 100+ steps, loss decreases &mdash; <span class="highlight">both models work</span></span></pre>
 </div>
 
+<div class="target-box">
+  <h3>The Sunday Evening Demo &mdash; FSDP2 Smoke Test</h3>
+  <pre><span class="comment"># <span class="highlight">Run on 2 GPUs &mdash; verifies autograd.Function pattern survives FSDP2 weight sharding</span></span>
+<span class="comment"># torchrun --nproc-per-node=2 test_fsdp2_smoke.py</span>
+
+<span class="keyword">from</span> torch.distributed.fsdp <span class="keyword">import</span> FullyShardedDataParallel <span class="keyword">as</span> FSDP
+<span class="keyword">import</span> forge
+
+model = AutoModelForCausalLM.<span class="func">from_pretrained</span>(
+    <span class="string">"Qwen/Qwen2.5-0.5B"</span>, torch_dtype=torch.bfloat16
+)
+forge.<span class="highlight">patch</span>(model)                     <span class="comment"># Forge kernels active</span>
+model = <span class="highlight">FSDP</span>(model)                    <span class="comment"># <span class="highlight">Shard weights across 2 GPUs</span></span>
+
+<span class="comment"># Forward + backward under FSDP2</span>
+loss = model(input_ids, labels=labels).loss
+loss.<span class="func">backward</span>()
+
+<span class="comment"># Four checks must pass:</span>
+<span class="comment"># <span class="highlight">1. No crash &mdash; FSDP2 all-gather + Forge forward coexist</span></span>
+<span class="comment"># <span class="highlight">2. No NaN &mdash; gradients are finite on both ranks</span></span>
+<span class="comment"># <span class="highlight">3. Gradients match single-GPU reference (within rtol=1e-3)</span></span>
+<span class="comment"># <span class="highlight">4. VRAM is sharded &mdash; each GPU holds ~half the weights</span></span></pre>
+</div>
+
 <!-- WHAT THIS ACHIEVES -->
 <section>
   <h2>What This Achieves</h2>
