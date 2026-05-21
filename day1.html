@@ -548,18 +548,141 @@
       <details class="task-steps">
         <summary>Steps</summary>
         <ol>
-          <li><strong>Study <code>integration_gpt2large/integration_test.ipynb</code></strong> &mdash; understand the monkey-patching pattern and closure factory</li>
-          <li>Create <code>forge/forge/patching/patch.py</code>: <code>forge.patch(model, kernels=None)</code>, <code>forge.unpatch(model)</code></li>
-          <li>Implement architecture detection: inspect model class name to determine Qwen3 vs Gemma vs unknown</li>
-          <li>Create <code>forge/forge/patching/qwen3.py</code> &mdash; map Qwen3 module types to Forge kernels. Trace Qwen2.5-0.5B module tree.</li>
+          <li><strong>Study <code>integration_gpt2large/integration_test.ipynb</code></strong> &mdash; understand the monkey-patching pattern and closure factory. Then read <strong><a href="details.html#wiring">Design Details &rarr; Wiring Guide</a></strong> before writing any code. The Wiring Guide shows the exact closure factory pattern, the <code>_FORWARD_MAKERS</code> dispatch table, and <code>_replace_forward</code>. H8&rsquo;s job is to build the outer shell (<code>patch.py</code>, <code>qwen3.py</code>, <code>gemma.py</code>); the Wiring Guide shows how the inner dispatch works.</li>
+          <li>Create <code>forge/forge/patching/patch.py</code> &mdash; use this skeleton:
+<pre><code>from .qwen3 import QWEN3_MAPPING
+from .gemma import GEMMA_MAPPING
+
+ARCH_MAPPINGS = {
+    "qwen2":  QWEN3_MAPPING,   # Qwen2.5 / Qwen3 family
+    "gemma2": GEMMA_MAPPING,
+}
+
+def patch(model, kernels=None):
+    model_type = model.config.model_type   # e.g. "qwen2", "gemma2"
+    mapping = ARCH_MAPPINGS.get(model_type)
+    if mapping is None:
+        raise ValueError(f"No Forge mapping for model_type={model_type!r}")
+    originals = {}
+    for _, module in model.named_modules():
+        class_name = type(module).__name__
+        if class_name in mapping:
+            kernel_name, config = mapping[class_name]
+            if kernels is None or kernel_name in kernels:
+                _replace_forward(module, kernel_name, config, originals)
+    model._forge_originals = originals
+
+def unpatch(model):
+    for mod_id, orig_fwd in model._forge_originals.items():
+        ...  # restore original forward on each module
+    del model._forge_originals</code></pre>
+          </li>
+          <li><strong>Architecture detection:</strong> use <code>model.config.model_type</code> &mdash; every HuggingFace model sets this. For Qwen2.5-0.5B it is <code>"qwen2"</code>, for Gemma-2 it is <code>"gemma2"</code>. Do <strong>not</strong> use <code>type(model).__name__</code> &mdash; that string changes between model variants and is not a stable identifier.</li>
+          <li>Create <code>forge/forge/patching/qwen3.py</code> with the complete mapping dict:
+<pre><code>QWEN3_MAPPING = {
+    "Qwen2RMSNorm": ("rmsnorm", {}),
+    "Qwen2MLP":     ("swiglu",  {"activation": "silu"}),
+}
+# NOTE: RoPE and CrossEntropy are NOT in this dict.
+# They live inside Qwen2Attention.forward -- not standalone modules.
+# Patching them requires rewriting Qwen2Attention.forward -- deferred.</code></pre>
+          Verify these class names by running <code>for _, m in model.named_modules(): print(type(m).__name__)</code> on Qwen2.5-0.5B.
+          </li>
           <li><strong>Gemma module trace:</strong> Load <code>google/gemma-2-2b</code>, run <code>for name, mod in model.named_modules(): print(name, type(mod).__name__)</code>. Document every module class name. This feeds directly into <code>gemma.py</code>.</li>
-          <li><strong>RMSNorm offset param (~20 min):</strong> Add <code>offset</code> parameter to ForgeRMSNorm. When <code>offset=1.0</code>, kernel computes <code>(weight + 1.0) * x / rms</code>. Write one test: <code>ForgeRMSNorm(4096, offset=1.0)</code> matches Gemma's behavior.</li>
-          <li><strong>RoPE base param (~20 min):</strong> Coordinate with P2 (H2) to ensure ForgeRoPE accepts a <code>base</code> parameter (default 10000.0). Gemma uses a different base. This changes the cos/sin frequency table precomputation, not the Triton kernel. Write one test confirming the different base produces different outputs.</li>
-          <li>Create <code>forge/forge/patching/gemma.py</code> &mdash; map Gemma module types to Forge kernels with config overrides: <code>GemmaRMSNorm &rarr; rmsnorm(offset=1.0)</code>, <code>GemmaMLP &rarr; swiglu(activation="gelu")</code>, <code>GemmaRotaryEmbedding &rarr; rope(base=...)</code></li>
-          <li>Store originals in <code>model._forge_originals</code> for unpatch. Use closure factory to avoid loop-variable capture bug.</li>
-          <li><strong>FSDP2 research (afternoon):</strong> Study PyTorch FSDP2 docs. Key question: does <code>ctx.save_for_backward(weight)</code> work when FSDP2 shards the weight?</li>
-          <li>Write <code>test_fsdp2_smoke.py</code> script: minimal model with ForgeRMSNorm + nn.Linear, FSDP-wrapped, fwd+bwd on 2 GPUs, compare gradients to single-GPU</li>
-          <li>Document FSDP2 findings: known issues, pattern requirements, Phase 3 recommendations</li>
+          <li><strong>RMSNorm offset param (~20 min):</strong> Add <code>offset</code> parameter to <code>ForgeRMSNorm</code>. When <code>offset=1.0</code>, kernel computes <code>(weight + 1.0) * x / rms</code>. Write one test: <code>ForgeRMSNorm(4096, offset=1.0)</code> matches Gemma&rsquo;s behavior.</li>
+          <li><strong>RoPE base param (~20 min):</strong> Coordinate with P2 (H2) to ensure <code>ForgeRoPE</code> accepts a <code>base</code> parameter (default 10000.0). Gemma uses a different base. This changes the cos/sin frequency table precomputation, not the Triton kernel. Write one test confirming the different base produces different outputs.</li>
+          <li>Create <code>forge/forge/patching/gemma.py</code> with the complete mapping dict:
+<pre><code>GEMMA_MAPPING = {
+    "GemmaRMSNorm": ("rmsnorm", {"offset": 1.0}),
+    "GemmaMLP":     ("swiglu",  {"activation": "gelu"}),
+}
+# Same restriction: GemmaAttention RoPE deferred.</code></pre>
+          </li>
+          <li>Store originals and wire the closure factory &mdash; <code>_replace_forward</code> and <code>_FORWARD_MAKERS</code> are fully shown in <strong><a href="details.html#wiring">Design Details &rarr; Wiring Guide</a></strong>. Copy them into <code>patch.py</code>. Critical: the closure must close over <code>module.weight</code> directly (not a copy), so LoRA weight updates on Day 2 are automatically visible to the forward pass.</li>
+          <li><strong>FSDP2 research (afternoon).</strong> Read these three resources in order:
+            <ol type="a">
+              <li>PyTorch FSDP tutorial &mdash; search &ldquo;PyTorch FSDP getting started tutorial&rdquo; or go to <a href="https://pytorch.org/tutorials/intermediate/FSDP_tutorial.html" target="_blank">pytorch.org/tutorials/intermediate/FSDP_tutorial.html</a></li>
+              <li>PyTorch FSDP API reference &mdash; <code>torch.distributed.fsdp.FullyShardedDataParallel</code> constructor args &mdash; <a href="https://pytorch.org/docs/stable/fsdp.html" target="_blank">pytorch.org/docs/stable/fsdp.html</a></li>
+              <li>HuggingFace Accelerate FSDP config guide &mdash; search &ldquo;huggingface accelerate fsdp usage guide&rdquo; or go to <a href="https://huggingface.co/docs/accelerate/usage_guides/fsdp" target="_blank">huggingface.co/docs/accelerate/usage_guides/fsdp</a> &mdash; specifically the <code>fsdp_transformer_layer_cls_to_wrap</code> config key</li>
+            </ol>
+            After reading, write answers to these 5 questions in <code>fsdp2_research_notes.md</code>:
+            <ol>
+              <li>When does FSDP2 all-gather the full weight?</li>
+              <li>When does FSDP2 free the gathered weight?</li>
+              <li>If our kernel calls <code>ctx.save_for_backward(weight)</code> and FSDP2 frees weight after forward &mdash; does saving create a reference that keeps it alive, or does FSDP2 override it?</li>
+              <li>What is the correct FSDP wrapping granularity for Qwen3? (hint: not per-kernel &mdash; per transformer layer)</li>
+              <li>What does <code>fsdp_transformer_layer_cls_to_wrap = Qwen2DecoderLayer</code> do in HF Accelerate config?</li>
+            </ol>
+          </li>
+          <li>Write <code>test_fsdp2_smoke.py</code> &mdash; use this skeleton:
+<pre><code># run with: torchrun --nproc-per-node=2 test_fsdp2_smoke.py
+import torch, torch.distributed as dist, functools
+from torch.distributed.fsdp import FullyShardedDataParallel as FSDP
+from torch.distributed.fsdp.wrap import transformer_auto_wrap_policy
+from forge.kernels.rmsnorm import ForgeRMSNorm
+import torch.nn as nn
+
+dist.init_process_group("nccl")
+rank = dist.get_rank()
+torch.cuda.set_device(rank)
+
+class TinyBlock(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.norm = ForgeRMSNorm(4096)
+        self.linear = nn.Linear(4096, 4096)
+    def forward(self, x):
+        return self.linear(self.norm(x))
+
+# Single-GPU reference (rank 0 only)
+if rank == 0:
+    ref = TinyBlock().cuda().bfloat16()
+    x_ref = torch.randn(4, 128, 4096, dtype=torch.bfloat16, device="cuda")
+    ref(x_ref).sum().backward()
+    ref_grad = ref.norm.weight.grad.clone()
+
+# FSDP-wrapped run
+model = nn.Sequential(TinyBlock()).cuda().bfloat16()
+model = FSDP(model, auto_wrap_policy=functools.partial(
+    transformer_auto_wrap_policy, transformer_layer_cls={TinyBlock}
+))
+x = torch.randn(4, 128, 4096, dtype=torch.bfloat16, device="cuda")
+out = model(x); loss = out.sum(); loss.backward()
+
+# Four checks
+assert not out.isnan().any(), f"FAIL rank {rank}: NaN in output"
+assert not loss.isnan(),      f"FAIL rank {rank}: NaN in loss"
+param_bytes = sum(p.numel() * p.element_size() for p in model.parameters())
+print(f"rank {rank}: param bytes held = {param_bytes:,}")  # check VRAM sharded
+if rank == 0:
+    fsdp_grad = model[0].norm.weight.grad
+    max_diff = (fsdp_grad - ref_grad).abs().max().item()
+    assert max_diff &lt; 1e-3, f"FAIL: grad mismatch max_diff={max_diff:.6f}"
+    print(f"PASS: loss={loss.item():.4f}, grad_max_diff={max_diff:.6f}")
+
+dist.destroy_process_group()</code></pre>
+          </li>
+          <li>Create <code>fsdp2_research_notes.md</code> &mdash; this is the deliverable you hand to the team at the Sunday retro:
+<pre><code>## FSDP2 Research Notes
+
+### 5 Questions
+1. FSDP2 all-gathers weight at: ...
+2. FSDP2 frees weight at: ...
+3. ctx.save_for_backward(weight): WORKS / FAILS / UNKNOWN -- because ...
+4. Correct wrapping granularity: ...
+5. fsdp_transformer_layer_cls_to_wrap does: ...
+
+### Smoke Test
+- Command: torchrun --nproc-per-node=2 test_fsdp2_smoke.py
+- Result: PASS / FAIL
+- If FAIL: [error + suspected cause]
+
+### Pattern Change Needed for Phase 3?
+YES / NO -- if yes, describe what changes
+
+### Open Questions / Blockers
+- ...</code></pre>
+          </li>
         </ol>
       </details>
 
@@ -571,7 +694,7 @@
           <li>Closure factory pattern: <code>_make_forge_fwd(mod)</code> &mdash; avoids Python loop-variable capture. The integration test notebook documents this pitfall.</li>
           <li><strong>RMSNorm offset and RoPE base are trivial.</strong> Each is ~20 min of work. Do them early so they're out of the way. The RMSNorm offset is a 1-line kernel change; the RoPE base is a constructor arg.</li>
           <li><strong>Trace Gemma modules yourself</strong> &mdash; don't wait for anyone. Load gemma-2-2b, print the module tree, use that to write gemma.py directly.</li>
-          <li>For FSDP2: study HF's FSDP examples and <code>accelerate</code>'s FSDP config. Pre-write the smoke test script so Day 2 just runs it.</li>
+          <li><strong>For FSDP2:</strong> follow the reading checklist in Step 10 &mdash; three resources, roughly 1.5 hrs. Spend the remaining afternoon writing the smoke test (Step 11) and filling in the notes template (Step 12). The smoke test requires a 2-GPU node to run, but write and review the code locally first so Day 2 just executes it.</li>
         </ul>
       </div>
 
@@ -584,8 +707,9 @@
           <li><code>ForgeRMSNorm(4096, offset=1.0)</code> passes correctness test</li>
           <li><code>ForgeRoPE(..., base=gemma_base)</code> produces different output than default base</li>
           <li>Gemma module tree documented (all module class names mapped)</li>
-          <li><code>test_fsdp2_smoke.py</code> script written and ready to run on 2-GPU node</li>
-          <li>FSDP2 research notes documented: key findings, known issues, pattern recommendations</li>
+          <li>All 5 research questions answered in <code>fsdp2_research_notes.md</code></li>
+          <li><code>test_fsdp2_smoke.py</code> written with all 4 checks: no-crash, no-NaN, VRAM sharded (<code>param_bytes</code> printed per rank), gradients match single-GPU reference</li>
+          <li>PASS/FAIL verdict recorded &mdash; if on a 1-GPU machine, note the script is ready to run on a 2-GPU node</li>
         </ul>
       </div>
 
