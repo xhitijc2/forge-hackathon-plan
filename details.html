@@ -85,6 +85,7 @@
     <a href="details.html#gemma-map">Gemma Patch Mapping</a>
     <a href="details.html#training">Training Loop (Custom)</a>
     <a href="details.html#integration">Integration Tests</a>
+    <a href="details.html#wiring">Wiring Guide (H10 / H11)</a>
     <a href="details.html#decisions">Decision Log (12)</a>
   </nav>
   </details>
@@ -485,6 +486,154 @@ GEMMA_MAPPING = {
   </div>
 
   <p><strong>Target model: <code>google/gemma-2-2b</code></strong>. Small enough for single-GPU development, same Gemma-2 architecture as larger variants (gemma-2-9b, gemma-2-27b). If Gemma-2 has sliding window attention quirks that conflict with our kernels, document and demo with Qwen3 only.</p>
+</section>
+
+<!-- ===== WIRING GUIDE ===== -->
+<section id="wiring">
+  <h2>Wiring Guide &mdash; How forge.patch Gets Connected (H10 / H11)</h2>
+  <p class="section-desc">
+    On Day 1, P8 built the patching loop and the empty mapping files. On Day 2, H10 (P8) and H11 (P6) fill those files in and implement the forward closures. This section is the step-by-step guide for doing that. Read this before touching any code on Day 2.
+  </p>
+
+  <div class="approach-box">
+    <div class="approach-label">What "wiring" actually means</div>
+    <p style="margin:0 0 8px 0;">Two things exist after Day 1:</p>
+    <ol style="margin:0; padding-left:20px; line-height:1.9;">
+      <li><code>patch.py</code> &mdash; the loop that walks the model and calls <code>_replace_forward</code></li>
+      <li><code>qwen3.py</code> / <code>gemma.py</code> &mdash; mapping dicts that say &ldquo;when you see module class X, use kernel Y&rdquo;</li>
+    </ol>
+    <p style="margin:8px 0 0 0;">The new Day 1 kernels (SwiGLU, RoPE, etc.) didn't exist when P8 wrote those files, so the mappings are partial stubs. <strong>Wiring = filling in the missing mapping entries and writing the forward closure for each kernel type.</strong></p>
+  </div>
+
+  <h3 style="margin-top:32px;">Step 1 &mdash; Confirm the HuggingFace module class names</h3>
+  <p>The keys in <code>QWEN3_MAPPING</code> and <code>GEMMA_MAPPING</code> are the exact class names HuggingFace uses internally. Run this once to verify them (P6 should have done this on Day 1 morning for Gemma):</p>
+  <pre><span class="keyword">from</span> transformers <span class="keyword">import</span> AutoModelForCausalLM
+<span class="keyword">import</span> torch
+
+model = AutoModelForCausalLM.<span class="func">from_pretrained</span>(
+    <span class="string">"Qwen/Qwen2.5-0.5B"</span>, torch_dtype=torch.bfloat16
+)
+<span class="keyword">for</span> name, mod <span class="keyword">in</span> model.<span class="func">named_modules</span>():
+    print(f<span class="string">"{name:60s}  {type(mod).__name__}"</span>)
+<span class="comment"># Expected output includes:
+# model.layers.0.input_layernorm          Qwen2RMSNorm
+# model.layers.0.mlp                      Qwen2MLP
+# model.embed_tokens                      Embedding</span></pre>
+  <p>Run the same script with <code>"google/gemma-2-2b"</code> to confirm Gemma class names. The names in the mapping dicts must match exactly or patching silently skips those modules.</p>
+
+  <h3 style="margin-top:32px;">Step 2 &mdash; Fill in the mapping dicts</h3>
+  <p>Add an entry for each new kernel. The second element is a config dict passed to the closure &mdash; this is how the same kernel handles both architectures without separate code paths.</p>
+  <pre><span class="comment"># forge/patching/qwen3.py</span>
+QWEN3_MAPPING = {
+    <span class="string">"Qwen2RMSNorm"</span>: (<span class="string">"rmsnorm"</span>, {}),
+    <span class="string">"Qwen2MLP"</span>:     (<span class="string">"swiglu"</span>,  {}),
+    <span class="comment"># RoPE and CrossEntropy skipped for hackathon — see note at bottom</span>
+}
+
+<span class="comment"># forge/patching/gemma.py</span>
+GEMMA_MAPPING = {
+    <span class="string">"Gemma2RMSNorm"</span>: (<span class="string">"rmsnorm"</span>, {<span class="string">"offset"</span>: 1.0}),           <span class="comment"># offset=1.0 is the only difference</span>
+    <span class="string">"Gemma2MLP"</span>:     (<span class="string">"swiglu"</span>,  {<span class="string">"activation"</span>: <span class="string">"gelu"</span>}),   <span class="comment"># GeGLU not SwiGLU</span>
+}</pre>
+
+  <h3 style="margin-top:32px;">Step 3 &mdash; Implement the forward closure for each kernel type</h3>
+  <p>This is the core work. For each kernel name in the mapping, <code>patch.py</code> needs to know how to produce a new <code>forward</code> function from an existing HuggingFace module. Each kernel type needs its own <strong>closure factory</strong>.</p>
+  <p>Add a dispatch table and factory functions to <code>patch.py</code>:</p>
+
+  <pre><span class="comment"># forge/patching/patch.py</span>
+<span class="keyword">from</span> forge.kernels.rmsnorm <span class="keyword">import</span> ForgeRMSNormFunction
+<span class="keyword">from</span> forge.kernels.swiglu  <span class="keyword">import</span> ForgeSwiGLUFunction
+
+<span class="comment"># --- closure factories ---</span>
+
+<span class="keyword">def</span> <span class="func">_make_rmsnorm_forward</span>(module, config):
+    offset = config.<span class="func">get</span>(<span class="string">"offset"</span>, 0.0)
+    <span class="keyword">def</span> <span class="func">forward</span>(hidden_states):
+        <span class="keyword">return</span> ForgeRMSNormFunction.<span class="func">apply</span>(
+            hidden_states,
+            module.weight,           <span class="comment"># close over module — no weight copy needed</span>
+            module.variance_epsilon,
+            offset
+        )
+    <span class="keyword">return</span> forward
+
+<span class="keyword">def</span> <span class="func">_make_swiglu_forward</span>(module, config):
+    activation = config.<span class="func">get</span>(<span class="string">"activation"</span>, <span class="string">"silu"</span>)
+    <span class="keyword">def</span> <span class="func">forward</span>(x):
+        gate   = module.<span class="func">gate_proj</span>(x)   <span class="comment"># HF Linear layers stay as-is</span>
+        up     = module.<span class="func">up_proj</span>(x)
+        fused  = ForgeSwiGLUFunction.<span class="func">apply</span>(gate, up, activation)
+        <span class="keyword">return</span> module.<span class="func">down_proj</span>(fused) <span class="comment"># only SiLU(gate)*up is replaced</span>
+    <span class="keyword">return</span> forward
+
+<span class="comment"># --- dispatch table: kernel name → closure factory ---</span>
+_FORWARD_MAKERS = {
+    <span class="string">"rmsnorm"</span>: _make_rmsnorm_forward,
+    <span class="string">"swiglu"</span>:  _make_swiglu_forward,
+}
+
+<span class="comment"># --- _replace_forward calls the right factory ---</span>
+<span class="keyword">def</span> <span class="func">_replace_forward</span>(module, kernel_name, config, originals):
+    maker      = _FORWARD_MAKERS[kernel_name]
+    new_fwd    = <span class="func">maker</span>(module, config)
+    originals[<span class="func">id</span>(module)] = module.forward   <span class="comment"># save for unpatch</span>
+    module.forward = new_fwd</pre>
+
+  <div class="approach-box">
+    <div class="approach-label">Why close over module.weight, not copy it</div>
+    <p style="margin:0;">We do <code>module.weight</code> inside the closure rather than <code>w = module.weight.clone()</code>. This means the closure always reads the live weight. If LoRA adds an adapter that modifies the weight, the Forge forward sees the updated value automatically. Copying the weight at patch time would freeze it, breaking LoRA.</p>
+  </div>
+
+  <h3 style="margin-top:32px;">Step 4 &mdash; Test one kernel at a time</h3>
+  <p>Never test all kernels at once on the first run. Use <code>kernels=[...]</code> to enable one at a time, compare against the unpatched baseline, then enable all:</p>
+
+  <pre>model = AutoModelForCausalLM.<span class="func">from_pretrained</span>(<span class="string">"Qwen/Qwen2.5-0.5B"</span>, torch_dtype=torch.bfloat16, device_map=<span class="string">"cuda"</span>)
+ids   = torch.<span class="func">randint</span>(0, 1000, (1, 128), device=<span class="string">"cuda"</span>)
+
+<span class="comment"># Baseline</span>
+out_orig = model(ids).logits
+
+<span class="comment"># Test RMSNorm only</span>
+forge.<span class="func">patch</span>(model, kernels=[<span class="string">"rmsnorm"</span>])
+out = model(ids).logits
+print(<span class="string">"RMSNorm — NaN:"</span>, out.<span class="func">isnan</span>().<span class="func">any</span>().<span class="func">item</span>(),
+      <span class="string">" max_diff:"</span>, (out - out_orig).<span class="func">abs</span>().<span class="func">max</span>().<span class="func">item</span>())  <span class="comment"># expect &lt; 1.0</span>
+forge.<span class="func">unpatch</span>(model)
+
+<span class="comment"># Test SwiGLU only</span>
+forge.<span class="func">patch</span>(model, kernels=[<span class="string">"swiglu"</span>])
+out = model(ids).logits
+print(<span class="string">"SwiGLU  — NaN:"</span>, out.<span class="func">isnan</span>().<span class="func">any</span>().<span class="func">item</span>(),
+      <span class="string">" max_diff:"</span>, (out - out_orig).<span class="func">abs</span>().<span class="func">max</span>().<span class="func">item</span>())  <span class="comment"># expect &lt; 1.0</span>
+forge.<span class="func">unpatch</span>(model)
+
+<span class="comment"># Test all kernels</span>
+forge.<span class="func">patch</span>(model)
+out = model(ids).logits
+print(<span class="string">"All     — NaN:"</span>, out.<span class="func">isnan</span>().<span class="func">any</span>().<span class="func">item</span>(),
+      <span class="string">" max_diff:"</span>, (out - out_orig).<span class="func">abs</span>().<span class="func">max</span>().<span class="func">item</span>())  <span class="comment"># expect &lt; 1.0</span></pre>
+
+  <p>If <code>max_diff</code> is NaN or &gt; 5.0 for a specific kernel, that kernel's forward closure has a bug. Fix that one before enabling others. Expected max_diff &lt; 1.0 is normal for bf16 rounding differences.</p>
+
+  <h3 style="margin-top:32px;">Step 5 &mdash; Final verification (done-gate)</h3>
+  <p>The task is complete when this script prints <code>PASS</code>:</p>
+  <pre>forge.<span class="func">patch</span>(model)
+out = model(ids).logits
+<span class="keyword">assert</span> <span class="keyword">not</span> out.<span class="func">isnan</span>().<span class="func">any</span>(),               <span class="string">"NaN in output"</span>
+<span class="keyword">assert</span> out.shape == (1, 128, 151936),        <span class="string">"wrong shape"</span>
+<span class="keyword">assert</span> (out - out_orig).<span class="func">abs</span>().<span class="func">max</span>() &lt; 1.0,  <span class="string">"logit drift too large"</span>
+forge.<span class="func">unpatch</span>(model)
+out_restored = model(ids).logits
+<span class="keyword">assert</span> torch.<span class="func">allclose</span>(out_restored, out_orig), <span class="string">"unpatch did not restore original"</span>
+print(<span class="string">"PASS"</span>)</pre>
+  <p>For Gemma (H11), change <code>"Qwen/Qwen2.5-0.5B"</code> to <code>"google/gemma-2-2b"</code> and the expected vocab size in the shape assert.</p>
+
+  <div class="approach-box">
+    <div class="approach-label">RoPE and Cross-Entropy &mdash; deliberately skipped for the hackathon</div>
+    <p style="margin:0 0 8px 0;">Both kernels require patching inside <code>Qwen2Attention.forward</code>, not a standalone module. RoPE rotation (<code>apply_rotary_pos_emb</code>) and cross-entropy loss both happen inline in attention/causal-LM forward methods that we'd have to rewrite entirely. That's an hour of work each, and it's not on the critical path for the demo.</p>
+    <p style="margin:0;"><strong>Decision:</strong> wire RMSNorm + SwiGLU + Embedding + Fused Linear+CE for the hackathon. RoPE and CE wiring goes on the post-hackathon task list for V1 Phase 2.</p>
+  </div>
+
 </section>
 
 <!-- ===== TRAINING LOOP ===== -->

@@ -85,6 +85,7 @@
     <a href="details.html#gemma-map">Gemma Patch Mapping</a>
     <a href="details.html#training">Training Loop (Custom)</a>
     <a href="details.html#integration">Integration Tests</a>
+    <a href="details.html#wiring">Wiring Guide (H10 / H11)</a>
     <a href="details.html#decisions">Decision Log (12)</a>
   </nav>
   </details>
@@ -213,6 +214,7 @@
       <div class="approach-box">
         <div class="approach-label">How to approach it</div>
         <ul>
+          <li><strong>Read <a href="details.html#wiring">Design Details &rarr; Wiring Guide</a> before writing any code.</strong> It has the exact closure factories, dispatch table, and incremental test script.</li>
           <li><strong>You wrote the patching code on Day 1.</strong> You know the internals. This is wiring + debugging, not design.</li>
           <li>Start with a single kernel (RMSNorm) to verify the pattern end-to-end, then enable all.</li>
           <li>If a forward pass produces NaN after patching, enable one kernel at a time to isolate the problem kernel.</li>
@@ -265,6 +267,7 @@
       <div class="approach-box">
         <div class="approach-label">How to approach it</div>
         <ul>
+          <li><strong>Read <a href="details.html#wiring">Design Details &rarr; Wiring Guide</a> before writing any code.</strong> It has the closure factory pattern and the exact incremental test script. The only difference from Qwen3 is the module class names and config dict values.</li>
           <li><strong>You built the Gemma kernel variants on Day 1</strong> &mdash; you know exactly which params each kernel needs.</li>
           <li>Reuse P8's patching infrastructure. <code>gemma.py</code> is the same structure as <code>qwen3.py</code>, just different module names and config overrides.</li>
           <li>The training script is almost identical to Qwen3's &mdash; swap model name and adjust <code>target_modules</code> if Gemma names projections differently.</li>
