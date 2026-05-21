@@ -306,7 +306,7 @@
       <details class="task-steps">
         <summary>Steps</summary>
         <ol>
-          <li>Write <code>examples/sft_qwen3_lora.py</code>: load Qwen2.5-0.5B, apply LoRA, train with HF Trainer</li>
+          <li>Write <code>examples/sft_qwen3_lora.py</code>: load Qwen2.5-0.5B, <code>forge.patch</code>, apply LoRA, custom training loop &mdash; see <a href="details.html#training">Design Details &rarr; Training Loop</a> for the exact 40-line script</li>
           <li>Use a tiny dataset (synthetic or <code>HuggingFaceTB/smollm-corpus</code>) &mdash; 1000 samples max</li>
           <li><strong>Step A (Qwen3):</strong> Run WITHOUT <code>forge.patch</code> &mdash; verify vanilla training works (loss decreases)</li>
           <li><strong>Step B (Qwen3):</strong> Add <code>forge.patch(model)</code> before LoRA &mdash; verify loss still decreases</li>
@@ -321,6 +321,7 @@
       <div class="approach-box">
         <div class="approach-label">How to approach it</div>
         <ul>
+          <li><strong>Read <a href="details.html#training">Design Details &rarr; Training Loop</a> before writing any code.</strong> It has the full script, dataset setup, the critical <code>forge.patch → get_peft_model</code> ordering, and locked decisions.</li>
           <li><strong>Start the baseline (Step A) immediately at 10:15.</strong> Doesn't need forge.patch. Get vanilla training working while H9/H10 finish.</li>
           <li>Use <code>Qwen2.5-0.5B</code> and <code>gemma-2-2b</code> (small models that fit on any GPU).</li>
           <li>Coordinate with H11 (Gemma patching) for the Gemma demo script.</li>
