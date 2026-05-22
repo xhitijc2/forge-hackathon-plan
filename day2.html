@@ -160,17 +160,98 @@
         Port the 5 new kernels from Day 1 into the forge package and register them. Since the package scaffold
         already exists from H7, this is pure porting work &mdash; <strong>~2 hours instead of the original 2.5+</strong>.
       </p>
+      <p class="task-desc">
+        <strong>What &ldquo;porting&rdquo; means:</strong> taking each kernel that was written as a standalone <code>.py</code> file on Day 1
+        and moving it into the forge package so it can be imported as <code>from forge.kernels.swiglu import ForgeSwiGLU</code>.
+        The kernel code itself does not change &mdash; you are fixing imports, adding the registry decorator, and cleaning up test/notebook artifacts.
+      </p>
 
       <details class="task-steps">
         <summary>Recommended Steps</summary>
         <ol>
-          <li>Collect all 5 Day 1 kernel files (SwiGLU, RoPE, CE, LoRA MLP, LoRA QKV)</li>
-          <li>Port each into <code>forge/forge/kernels/</code>: fix imports, add <code>@register_kernel</code> decorator</li>
-          <li>If any Day 1 kernel was integrated late on Day 1, just clean up the port</li>
-          <li>Verify: <code>forge.kernels.list()</code> returns all 9 kernel names</li>
-          <li>Run all kernel tests from within the package to verify imports work</li>
+          <li>Collect all 5 Day 1 kernel files (SwiGLU, RoPE, CE, LoRA MLP, LoRA QKV) from wherever each person saved them.</li>
+          <li><strong>Understand what changes during a port.</strong> Here is a before/after for SwiGLU &mdash; the same 4 changes apply to every kernel:
+<pre><code># BEFORE — standalone Day 1 file (swiglu.py in working directory)
+import torch
+import triton
+import triton.language as tl
+
+@triton.jit
+def _swiglu_fwd_kernel(...):
+    ...
+
+class ForgeSwiGLUFunction(torch.autograd.Function):
+    ...
+
+class ForgeSwiGLU(torch.nn.Module):
+    def __init__(self, hidden, intermediate, activation="silu"):
+        ...
+
+# Day 1 scratch testing — DELETE during port
+if __name__ == "__main__":
+    m = ForgeSwiGLU(4096, 11008).cuda()
+    print(m(torch.randn(...), torch.randn(...)).shape)</code></pre>
+<pre><code># AFTER — ported into forge/forge/kernels/swiglu.py
+import torch
+import triton
+import triton.language as tl
+from .registry import register_kernel    # CHANGE 1: package-relative import
+
+@triton.jit
+def _swiglu_fwd_kernel(...):
+    ...                                  # kernel code is UNCHANGED
+
+class ForgeSwiGLUFunction(torch.autograd.Function):
+    ...                                  # autograd code is UNCHANGED
+
+@register_kernel("swiglu")              # CHANGE 2: registry decorator on the Module
+class ForgeSwiGLU(torch.nn.Module):
+    def __init__(self, hidden, intermediate, activation="silu"):
+        ...
+
+# CHANGE 3: no __main__ block, no test scratch, no print statements
+# CHANGE 4: if the file imported other forge kernels (rare), those
+#            become relative: from .rmsnorm import ForgeRMSNorm</code></pre>
+          </li>
+          <li><strong>Port each kernel one at a time.</strong> For each of the 5 files:
+            <ol type="a">
+              <li>Copy the file into <code>forge/forge/kernels/</code></li>
+              <li>Add <code>from .registry import register_kernel</code> at the top</li>
+              <li>Add <code>@register_kernel("&lt;name&gt;")</code> above the <code>nn.Module</code> class</li>
+              <li>Delete any <code>if __name__</code> blocks, scratch testing, or print statements</li>
+              <li>Fix any imports that assume a specific working directory</li>
+              <li>Immediately verify: <code>python -c "from forge.kernels.swiglu import ForgeSwiGLU; print('OK')"</code></li>
+            </ol>
+          </li>
+          <li>After all 5 are ported, verify the full registry:
+<pre><code>python -c "
+import forge
+names = forge.kernels.list()
+print(f'{len(names)} kernels registered: {names}')
+assert len(names) &gt;= 9, f'Expected 9, got {len(names)}'
+print('Registry OK')
+"</code></pre>
+          </li>
+          <li>Run all kernel tests from within the package:
+<pre><code>python -m pytest forge/tests/test_kernels/ -v   # all PASS</code></pre>
+            If a test fails, it is almost always an import path issue &mdash; check that the test file uses <code>from forge.kernels.X import ...</code>, not a bare <code>import X</code>.
+          </li>
         </ol>
       </details>
+
+      <div class="approach-box">
+        <div class="approach-label">What a good port looks like</div>
+        <ul>
+          <li>File lives at <code>forge/forge/kernels/&lt;name&gt;.py</code></li>
+          <li>Uses <code>from .registry import register_kernel</code> (package-relative import, not absolute)</li>
+          <li><code>@register_kernel("&lt;name&gt;")</code> on the <code>nn.Module</code> class</li>
+          <li>No leftover <code>if __name__ == "__main__"</code> blocks or scratch testing code</li>
+          <li>No absolute imports that assume a specific working directory</li>
+          <li><code>forge.kernels.get("&lt;name&gt;")</code> returns the class</li>
+          <li>The existing Day 1 test file still passes when run from the package</li>
+          <li><strong>Port one &rarr; verify import &rarr; port next.</strong> Do not port all 5 then test &mdash; an import error in one file can mask issues in another.</li>
+        </ul>
+      </div>
 
       <div class="exit-criteria">
         <div class="ec-label">Done When</div>
