@@ -163,7 +163,7 @@
       </p>
 
       <details class="task-steps" open>
-        <summary>Steps</summary>
+        <summary>Recommended Steps</summary>
         <ol>
           <li>Read <code>forge_learning/module_4_kernel_math/01_gradient_derivation_swiglu.md</code> &mdash; understand the product-rule backward</li>
           <li>Read <code>forge_learning/module_5_kernel_implementation/01_swiglu_triton_kernel.md</code></li>
@@ -220,7 +220,7 @@
       </p>
 
       <details class="task-steps">
-        <summary>Steps</summary>
+        <summary>Recommended Steps</summary>
         <ol>
           <li>Read <code>forge_learning/module_4_kernel_math/02_gradient_derivation_rope.md</code></li>
           <li>Read <code>forge_learning/module_5_kernel_implementation/02_rope_triton_kernel.md</code></li>
@@ -273,7 +273,7 @@
       </p>
 
       <details class="task-steps">
-        <summary>Steps</summary>
+        <summary>Recommended Steps</summary>
         <ol>
           <li>Read <code>forge_learning/module_4_kernel_math/03_online_softmax_algorithm.md</code></li>
           <li>Read <code>forge_learning/module_4_kernel_math/04_fused_cross_entropy_math.md</code></li>
@@ -327,7 +327,7 @@
       </p>
 
       <details class="task-steps">
-        <summary>Steps</summary>
+        <summary>Recommended Steps</summary>
         <ol>
           <li>Read <code>forge_learning/module_4_kernel_math/05_lora_matmul_optimization.md</code></li>
           <li>Read <code>forge_learning/module_5_kernel_implementation/04_lora_fused_kernels.md</code></li>
@@ -379,7 +379,7 @@
       </p>
 
       <details class="task-steps">
-        <summary>Steps</summary>
+        <summary>Recommended Steps</summary>
         <ol>
           <li>Read <code>forge_learning/module_5_kernel_implementation/04_lora_fused_kernels.md</code> &mdash; QKV section</li>
           <li>Concatenate W_q, W_k, W_v &rarr; one matrix <code>[4096, 5120]</code> (4096+512+512)</li>
@@ -434,7 +434,7 @@
       </p>
 
       <details class="task-steps">
-        <summary>Steps</summary>
+        <summary>Recommended Steps</summary>
         <ol>
           <li>Read <code>forge_learning/module_4_kernel_math/01_gradient_derivation_swiglu.md</code> &mdash; understand the product-rule backward structure (same for both activations)</li>
           <li><strong>Coordinate with P1 at 10:30:</strong> agree on kernel interface &mdash; the <code>activation</code> parameter, how it branches in the Triton kernel (<code>tl.constexpr</code>), shared <code>autograd.Function</code> structure</li>
@@ -489,7 +489,7 @@
       </p>
 
       <details class="task-steps">
-        <summary>Steps</summary>
+        <summary>Recommended Steps</summary>
         <ol>
           <li>Create <code>forge/</code> directory with <code>pyproject.toml</code> (setuptools, Python &ge;3.9, depends on torch, triton, transformers)</li>
           <li>Create <code>forge/forge/__init__.py</code>, <code>forge/forge/kernels/__init__.py</code></li>
@@ -546,7 +546,7 @@
       </p>
 
       <details class="task-steps">
-        <summary>Steps</summary>
+        <summary>Recommended Steps</summary>
         <ol>
           <li><strong>Study <code>integration_gpt2large/integration_test.ipynb</code></strong> &mdash; understand the monkey-patching pattern and closure factory. Then read <strong><a href="details.html#wiring">Design Details &rarr; Wiring Guide</a></strong> before writing any code. The Wiring Guide shows the exact closure factory pattern, the <code>_FORWARD_MAKERS</code> dispatch table, and <code>_replace_forward</code>. H8&rsquo;s job is to build the outer shell (<code>patch.py</code>, <code>qwen3.py</code>, <code>gemma.py</code>); the Wiring Guide shows how the inner dispatch works.</li>
           <li>Create <code>forge/forge/patching/patch.py</code> &mdash; use this skeleton:

@@ -162,7 +162,7 @@
       </p>
 
       <details class="task-steps">
-        <summary>Steps</summary>
+        <summary>Recommended Steps</summary>
         <ol>
           <li>Collect all 5 Day 1 kernel files (SwiGLU, RoPE, CE, LoRA MLP, LoRA QKV)</li>
           <li>Port each into <code>forge/forge/kernels/</code>: fix imports, add <code>@register_kernel</code> decorator</li>
@@ -200,7 +200,7 @@
       </p>
 
       <details class="task-steps">
-        <summary>Steps</summary>
+        <summary>Recommended Steps</summary>
         <ol>
           <li>Wait for H9 to register at least the kernels needed for Qwen3 patching</li>
           <li>Wire <code>qwen3.py</code> mapping to actual registered kernels (connect module types to real Forge modules)</li>
@@ -252,7 +252,7 @@
       </p>
 
       <details class="task-steps">
-        <summary>Steps</summary>
+        <summary>Recommended Steps</summary>
         <ol>
           <li>Wire <code>gemma.py</code> mapping to registered kernels with Gemma-specific config overrides</li>
           <li>Test: <code>forge.patch(model)</code> on gemma-2-2b, forward pass produces valid logits</li>
@@ -304,7 +304,7 @@
       </p>
 
       <details class="task-steps">
-        <summary>Steps</summary>
+        <summary>Recommended Steps</summary>
         <ol>
           <li>Write <code>examples/sft_qwen3_lora.py</code>: load Qwen2.5-0.5B, <code>forge.patch</code>, apply LoRA, custom training loop &mdash; see <a href="details.html#training">Design Details &rarr; Training Loop</a> for the exact 40-line script</li>
           <li>Use a tiny dataset (synthetic or <code>HuggingFaceTB/smollm-corpus</code>) &mdash; 1000 samples max</li>
@@ -357,7 +357,7 @@
       </p>
 
       <details class="task-steps">
-        <summary>Steps</summary>
+        <summary>Recommended Steps</summary>
         <ol>
           <li>Move all Day 1 test files into <code>forge/tests/test_kernels/</code></li>
           <li>Fix imports to use <code>from forge.kernels.X import ...</code></li>
@@ -407,7 +407,7 @@
       </p>
 
       <details class="task-steps">
-        <summary>Steps</summary>
+        <summary>Recommended Steps</summary>
         <ol>
           <li>Collect all Day 1 benchmark scripts</li>
           <li>Run each at <strong>Qwen3 shapes</strong>: hidden=4096, intermediate=11008, seq_len in {512, 2048}</li>
@@ -450,7 +450,7 @@
       </p>
 
       <details class="task-steps">
-        <summary>Steps</summary>
+        <summary>Recommended Steps</summary>
         <ol>
           <li>Set up 2-GPU node (should be provisioned Friday)</li>
           <li>Install forge package on the 2-GPU node</li>
